@@ -74,10 +74,11 @@ export function createEmptyChart(): ChordChart {
   };
 }
 
-export function formatChord(chord: { root: string; quality: string; bass?: string }): string {
+export function formatChord(chord: { root: string; quality: string; bass?: string; extensions?: string[] }): string {
   const qualitySymbol = getQualitySymbol(chord.quality);
+  const extStr = chord.extensions?.length ? chord.extensions.join("") : "";
   const bassStr = chord.bass ? `/${chord.bass}` : "";
-  return `${chord.root}${qualitySymbol}${bassStr}`;
+  return `${chord.root}${qualitySymbol}${extStr}${bassStr}`;
 }
 
 export function getQualitySymbol(quality: string): string {
@@ -85,8 +86,8 @@ export function getQualitySymbol(quality: string): string {
     maj: "", min: "m", dim: "dim", aug: "aug",
     maj7: "maj7", min7: "m7", dom7: "7", dim7: "dim7",
     hdim7: "m7b5", minmaj7: "mM7", aug7: "aug7",
-    sus2: "sus2", sus4: "sus4", add9: "add9",
-    "6": "6", min6: "m6", "9": "9", maj9: "maj9",
+    sus2: "sus2", sus4: "sus4", sus9: "sus9", add2: "add2", add9: "add9",
+    "69": "6/9", "6": "6", min6: "m6", "9": "9", maj9: "maj9",
     min9: "m9", "11": "11", "13": "13",
   };
   return qualityMap[quality] ?? quality;

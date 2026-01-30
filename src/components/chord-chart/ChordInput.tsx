@@ -99,7 +99,7 @@ export function ChordInput({
       ? `${currentNashville.degree}${currentNashville.quality ?? ""}`
       : "Add chord..."
     : currentChord
-      ? `${currentChord.root}${CHORD_QUALITIES.find((q) => q.value === currentChord.quality)?.symbol ?? ""}`
+      ? formatChord(currentChord)
       : "Add chord...";
 
   return (

@@ -1,9 +1,10 @@
-import { CHORD_ROOTS, CHORD_QUALITIES, CHORD_ALIASES, NASHVILLE_NUMBERS } from "./constants";
+import { CHORD_ROOTS, CHORD_QUALITIES, CHORD_ALIASES, CHORD_EXTENSIONS, NASHVILLE_NUMBERS } from "./constants";
 
 /** Quality aliases sorted longest-first for parsing. */
 const QUALITY_ALIASES = [...CHORD_ALIASES].sort((a, b) => b.pattern.length - a.pattern.length);
 
 const VALID_QUALITIES = new Set(CHORD_QUALITIES.map((q) => q.value));
+const EXTENSIONS_SET = new Set(CHORD_EXTENSIONS);
 const ROOTS_BY_LENGTH = [...CHORD_ROOTS].sort((a, b) => b.length - a.length);
 
 function parseRootFromStart(input: string): { root: string; rest: string } | null {
@@ -26,9 +27,22 @@ function parseQualityFromRest(rest: string): string | null {
   return null;
 }
 
+function parseQualityWithExtensions(rest: string): { quality: string; extensions: string[] } | null {
+  const lower = rest.toLowerCase();
+  for (const { pattern, quality } of QUALITY_ALIASES) {
+    if (pattern === "" && lower === "") return { quality: "maj", extensions: [] };
+    if (!pattern) continue;
+    if (!lower.startsWith(pattern.toLowerCase())) continue;
+    const remainder = rest.slice(pattern.length).trim();
+    if (remainder === "") return { quality, extensions: [] };
+    if (EXTENSIONS_SET.has(remainder as (typeof CHORD_EXTENSIONS)[number])) return { quality, extensions: [remainder] };
+  }
+  return null;
+}
+
 export interface ParseResult {
   valid: boolean;
-  chord?: { root: string; quality: string };
+  chord?: { root: string; quality: string; extensions?: string[] };
   nashville?: { degree: string; quality: string };
   error?: string;
 }
@@ -53,20 +67,19 @@ export function parseChord(input: string, isNashville: boolean): ParseResult {
     return { valid: false, error: `Unknown root. Use one of: ${CHORD_ROOTS.join(", ")}` };
   }
 
-  const quality = parseQualityFromRest(parsed.rest);
-  if (quality === null && parsed.rest.length > 0) {
+  const parsedQuality = parseQualityWithExtensions(parsed.rest);
+  if (parsedQuality === null && parsed.rest.length > 0) {
     return { valid: false, error: `Unknown quality: "${parsed.rest}"` };
   }
 
-  const finalQuality = quality ?? "maj";
+  const { quality: finalQuality, extensions } = parsedQuality ?? { quality: "maj", extensions: [] as string[] };
   if (!VALID_QUALITIES.has(finalQuality)) {
     return { valid: false, error: `Unsupported quality: ${finalQuality}` };
   }
 
-  return {
-    valid: true,
-    chord: { root: parsed.root, quality: finalQuality },
-  };
+  const chord: { root: string; quality: string; extensions?: string[] } = { root: parsed.root, quality: finalQuality };
+  if (extensions.length > 0) chord.extensions = extensions;
+  return { valid: true, chord };
 }
 
 const NASHVILLE_BY_LENGTH = [...NASHVILLE_NUMBERS].sort((a, b) => b.length - a.length);

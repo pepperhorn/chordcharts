@@ -77,10 +77,14 @@ export const CHORD_ALIASES: Array<{ pattern: string; quality: string }> = [
   { pattern: "m6", quality: "min6" },
   { pattern: "aug7", quality: "aug7" },
   { pattern: "augmented7", quality: "aug7" },
+  { pattern: "sus9", quality: "sus9" },
   { pattern: "sus4", quality: "sus4" },
   { pattern: "sus", quality: "sus4" },
   { pattern: "sus2", quality: "sus2" },
+  { pattern: "6/9", quality: "69" },
+  { pattern: "69", quality: "69" },
   { pattern: "add9", quality: "add9" },
+  { pattern: "add2", quality: "add2" },
   { pattern: "maj", quality: "maj" },
   { pattern: "major", quality: "maj" },
   { pattern: "ma", quality: "maj" },
@@ -106,6 +110,11 @@ export const CHORD_ALIASES: Array<{ pattern: string; quality: string }> = [
   { pattern: "", quality: "maj" },
 ];
 
+// Alterations/extensions that can follow a base quality (e.g. m7#5, 7b9)
+export const CHORD_EXTENSIONS = [
+  "#5", "b5", "#9", "b9", "#11", "b11", "#13", "b13",
+] as const;
+
 // Chord qualities
 export const CHORD_QUALITIES = [
   { value: "maj", label: "Major", symbol: "" },
@@ -121,7 +130,10 @@ export const CHORD_QUALITIES = [
   { value: "aug7", label: "Augmented 7", symbol: "aug7" },
   { value: "sus2", label: "Suspended 2", symbol: "sus2" },
   { value: "sus4", label: "Suspended 4", symbol: "sus4" },
+  { value: "sus9", label: "Suspended 9", symbol: "sus9" },
+  { value: "add2", label: "Add 2", symbol: "add2" },
   { value: "add9", label: "Add 9", symbol: "add9" },
+  { value: "69", label: "6/9", symbol: "6/9" },
   { value: "6", label: "Major 6", symbol: "6" },
   { value: "min6", label: "Minor 6", symbol: "m6" },
   { value: "9", label: "Dominant 9", symbol: "9" },

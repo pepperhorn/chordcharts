@@ -1,5 +1,5 @@
 import { ChordChartSchema, type ChordChart } from "./schema";
-import { getQualitySymbol } from "./utils";
+import { formatChord, getQualitySymbol } from "./utils";
 
 export function exportToJSON(chart: ChordChart): string {
   return JSON.stringify(chart, null, 2);
@@ -42,7 +42,7 @@ export function exportToMarkdown(chart: ChordChart): string {
         if (chart.meta.notationType === "nashville" && slot.nashvilleChord) {
           chords.push(slot.nashvilleChord.degree + (slot.nashvilleChord.quality ?? ""));
         } else if (slot.chord) {
-          chords.push(slot.chord.root + getQualitySymbol(slot.chord.quality));
+          chords.push(formatChord(slot.chord));
         } else {
           chords.push("-");
         }
