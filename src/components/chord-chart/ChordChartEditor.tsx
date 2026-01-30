@@ -22,7 +22,6 @@ interface ChordChartEditorProps {
 
 export function ChordChartEditor({ className, initialChart }: ChordChartEditorProps) {
   const { importJSON, setSelection, ui, undo, redo, setBeatDivision } = useChartStore();
-  const selection = ui.selection;
 
   // Enable arrow key navigation through chart elements
   useKeyboardNavigation();
@@ -47,20 +46,37 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
       }
       if (e.key === "Escape") setSelection(null);
 
-      // 1–5: set beat division when a beat/slot is selected (skip when typing in an input)
-      const target = e.target as Node;
-      const isInput = target && "closest" in target && (target as Element).closest?.("input, textarea, [contenteditable=true]");
-      if (!isInput && selection?.sectionId && selection.measureId && selection.beatId) {
-        const division = DIVISION_KEYS[e.key];
-        if (division) {
-          e.preventDefault();
-          setBeatDivision(selection.sectionId, selection.measureId, selection.beatId, division);
+      // 1–5: subdivision when no letter has been typed; otherwise chord input (e.g. A5, Bm7#5)
+      const division = DIVISION_KEYS[e.key];
+      if (division) {
+        const target = e.target as HTMLElement | null;
+        const isChordInput = target?.getAttribute?.("data-toolbar-chord-input") != null;
+        const isOtherInput = target && "closest" in target && (target as Element).closest?.("input, textarea, [contenteditable=true]");
+
+        if (isChordInput) {
+          const value = (target as HTMLInputElement).value ?? "";
+          const hasLetter = /[a-zA-Z]/.test(value);
+          if (!hasLetter) {
+            const { ui: currentUi } = useChartStore.getState();
+            const sel = currentUi.selection;
+            if (sel?.sectionId && sel.measureId && sel.beatId) {
+              e.preventDefault();
+              setBeatDivision(sel.sectionId, sel.measureId, sel.beatId, division);
+            }
+          }
+        } else if (!isOtherInput) {
+          const { ui: currentUi } = useChartStore.getState();
+          const sel = currentUi.selection;
+          if (sel?.sectionId && sel.measureId && sel.beatId) {
+            e.preventDefault();
+            setBeatDivision(sel.sectionId, sel.measureId, sel.beatId, division);
+          }
         }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [undo, redo, setSelection, setBeatDivision, selection]);
+  }, [undo, redo, setSelection, setBeatDivision]);
 
   return (
     <div
