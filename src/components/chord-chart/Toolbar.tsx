@@ -237,7 +237,7 @@ export function Toolbar() {
                   }
                 }}
                 placeholder={chart.meta.notationType === "nashville" ? "e.g. 4m7" : "e.g. Am7"}
-                className="w-24 font-mono text-sm h-8"
+                className="w-24 font-petaluma text-sm h-8"
                 aria-label="Type chord for selected slot (press Enter to apply)"
                 data-toolbar-chord-input
               />
@@ -329,7 +329,7 @@ export function Toolbar() {
                       {k}
                     </text>
                   </svg>
-                  <span className="text-sm leading-none" aria-hidden>
+                  <span className="font-petaluma text-sm leading-none" aria-hidden>
                     {note}
                   </span>
                 </span>

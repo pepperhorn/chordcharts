@@ -105,7 +105,7 @@ export function ChordInput({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full justify-start" aria-label="Edit chord">
+        <Button variant="outline" size="sm" className="w-full justify-start font-petaluma" aria-label="Edit chord">
           {displayLabel}
         </Button>
       </PopoverTrigger>
@@ -131,7 +131,7 @@ export function ChordInput({
             aria-invalid={hasError ? "true" : undefined}
             aria-describedby={hasError ? "chord-input-error" : previewLabel ? "chord-input-preview" : undefined}
             className={cn(
-              "font-mono",
+              "font-petaluma",
               isValid && typedValue.trim() && "border-green-500 dark:border-green-600",
               hasError && "border-destructive"
             )}

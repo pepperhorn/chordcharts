@@ -88,7 +88,7 @@ export function BeatComponent({
               />
             )}
             {ui.showSlashes && !isBeamed && slot.slash.rest && (
-              <span className="text-muted-foreground" aria-label="Rest">
+              <span className="font-petaluma text-muted-foreground" aria-label="Rest">
                 𝄽
               </span>
             )}

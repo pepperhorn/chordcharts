@@ -8,7 +8,7 @@ interface TimeSignatureDisplayProps {
 export function TimeSignatureDisplay({ timeSignature }: TimeSignatureDisplayProps) {
   return (
     <div
-      className="flex flex-col items-center justify-center px-2 font-bold text-lg"
+      className="flex flex-col items-center justify-center px-2 font-petaluma font-bold text-lg"
       role="img"
       aria-label={`Time signature: ${timeSignature.beats} over ${timeSignature.beatUnit}`}
     >

@@ -32,7 +32,7 @@ export function ChordSymbol({
 
   return (
     <span
-      className={cn("font-semibold text-sm whitespace-nowrap", className)}
+      className={cn("font-petaluma font-semibold text-sm whitespace-nowrap", className)}
       aria-label={`Chord: ${formattedChord}`}
     >
       {formattedChord}
