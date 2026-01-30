@@ -27,8 +27,19 @@ export function BeamedSlashGroup({ slots, size = "md" }: BeamedSlashGroupProps) 
   const articulationGap = 4;
   const n = slots.length;
   const totalWidth = n * slotWidth;
-  const totalHeight = beamHeight + stemLength + headFontSize + articulationGap + (slots.some((s) => s.articulation !== "none") ? 8 : 0);
-  const headY = beamHeight + stemLength;
+  const hasMarcato = slots.some((s) => s.articulation === "marcato");
+  const hasAccentStaccato = slots.some((s) => s.articulation === "accent" || s.articulation === "staccato");
+  const topSpace = hasMarcato ? 10 : 0;
+  const bottomSpace = hasAccentStaccato ? 10 : 0;
+  const stemTop = topSpace + beamHeight;
+  const headY = stemTop + stemLength;
+  const totalHeight =
+    topSpace +
+    beamHeight +
+    stemLength +
+    headFontSize +
+    articulationGap +
+    bottomSpace;
 
   return (
     <svg
@@ -45,16 +56,17 @@ export function BeamedSlashGroup({ slots, size = "md" }: BeamedSlashGroupProps) 
       {/* Beam: horizontal line spanning the beat */}
       <line
         x1={slotWidth / 2}
-        y1={beamHeight / 2}
+        y1={topSpace + beamHeight / 2}
         x2={totalWidth - slotWidth / 2}
-        y2={beamHeight / 2}
+        y2={topSpace + beamHeight / 2}
         stroke="currentColor"
         strokeWidth={beamHeight}
         strokeLinecap="round"
       />
       {slots.map((slot, i) => {
         const cx = (i + 0.5) * slotWidth;
-        const stemTop = beamHeight;
+        const belowHeadY = headY + headFontSize / 2 + 6;
+        const aboveHeadY = headY - 8;
 
         if (slot.rest) {
           return (
@@ -75,7 +87,7 @@ export function BeamedSlashGroup({ slots, size = "md" }: BeamedSlashGroupProps) 
 
         return (
           <g key={i}>
-            {/* Stem (tail) from beam down to head */}
+            {/* Stem (up) from beam down to head */}
             <line
               x1={cx}
               y1={stemTop}
@@ -96,23 +108,24 @@ export function BeamedSlashGroup({ slots, size = "md" }: BeamedSlashGroupProps) 
             >
               {size === "sm" ? SLASH_NOTEHEAD_SMALL : SLASH_NOTEHEAD}
             </text>
-            {/* Articulation above the beam */}
+            {/* Accent and staccato: below notehead (stems up) */}
             {slot.articulation === "accent" && (
               <path
-                d={`M ${cx - 3} ${stemTop - 4} L ${cx} ${stemTop - 8} L ${cx + 3} ${stemTop - 4}`}
+                d={`M ${cx - 3} ${belowHeadY + 4} L ${cx} ${belowHeadY} L ${cx + 3} ${belowHeadY + 4}`}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth={size === "sm" ? 1.2 : 1.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             )}
             {slot.articulation === "staccato" && (
-              <circle cx={cx} cy={stemTop - 5} r="1.5" fill="currentColor" />
+              <circle cx={cx} cy={belowHeadY + 2} r={size === "sm" ? 1.2 : 1.5} fill="currentColor" />
             )}
+            {/* Marcato: above the subdivision (above notehead), below chord row */}
             {slot.articulation === "marcato" && (
               <path
-                d={`M ${cx - 2} ${stemTop - 8} L ${cx} ${stemTop - 3} L ${cx + 2} ${stemTop - 8}`}
+                d={`M ${cx - 2} ${aboveHeadY - 4} L ${cx} ${aboveHeadY + 4} L ${cx + 2} ${aboveHeadY - 4}`}
                 fill="currentColor"
                 stroke="currentColor"
                 strokeWidth="0.5"

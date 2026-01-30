@@ -65,7 +65,12 @@ export function MeasureComponent(props: MeasureComponentProps) {
           <TimeSignatureDisplay timeSignature={timeSignature} />
         )}
         <Barline type={measure.barlineStart} position="start" hasRepeat={measure.repeatStart} />
-        <div className="flex-1 flex items-center gap-0.5 px-1">
+        <div
+          className="flex-1 grid items-stretch px-1 min-w-0"
+          style={{
+            gridTemplateColumns: `repeat(${measure.beats.length}, minmax(80px, min-content))`,
+          }}
+        >
           {measure.beats.map((beat, beatIndex) => (
             <BeatComponent
               key={beat.id}

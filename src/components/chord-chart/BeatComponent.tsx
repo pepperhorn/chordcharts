@@ -43,25 +43,20 @@ export function BeatComponent({
   return (
     <div
       className={cn(
-        "flex-1 flex flex-col items-center justify-center min-w-[30px] py-1",
+        "flex flex-col min-w-0 flex-1",
         "border-r border-dashed border-border/50 last:border-r-0",
         isSelected && "bg-primary/10 rounded"
       )}
       role="group"
       aria-label={`Beat ${beatIndex + 1}, ${beat.division} division`}
     >
-      <div
-        className={cn(
-          "flex w-full items-center justify-center gap-0.5",
-          beat.division === "quarter" && "flex-col",
-          beat.division !== "quarter" && "flex-row"
-        )}
-      >
+      {/* Chord row: fixed height, baseline-aligned so chords don't push rhythm */}
+      <div className="flex w-full items-end justify-center gap-0.5 min-h-[2rem] px-0.5 pb-0.5">
         {beat.slots.map((slot, slotIndex) => (
           <div
             key={slot.id}
             className={cn(
-              "flex flex-col items-center cursor-pointer p-0.5 rounded min-w-0",
+              "flex flex-1 min-w-0 items-end justify-center cursor-pointer py-0.5 rounded overflow-hidden",
               "hover:bg-muted transition-colors",
               ui.selection?.slotId === slot.id && "bg-primary/20 ring-1 ring-primary"
             )}
@@ -80,29 +75,50 @@ export function BeatComponent({
                 notationType={useChartStore.getState().chart.meta.notationType}
               />
             )}
-            {ui.showSlashes && !isBeamed && !slot.slash.rest && (
-              <SlashNotation
-                articulation={slot.slash.articulation}
-                tied={slot.slash.tied}
-                size={slashSize}
-              />
-            )}
-            {ui.showSlashes && !isBeamed && slot.slash.rest && (
-              <span className="font-petaluma text-muted-foreground" aria-label="Rest">
-                𝄽
-              </span>
-            )}
           </div>
         ))}
       </div>
-      {ui.showSlashes && isBeamed && (
-        <div className="flex justify-center w-full mt-0.5">
+      {/* Rhythm row: fixed min-height, slashes/beams centered and aligned across beats */}
+      <div className="flex w-full items-center justify-center min-h-[52px] flex-shrink-0">
+        {ui.showSlashes && !isBeamed && (
+          <div className="flex items-center justify-center gap-0.5">
+            {beat.slots.map((slot, slotIndex) => (
+              <div
+                key={slot.id}
+                className={cn(
+                  "flex items-center justify-center cursor-pointer p-0.5 rounded",
+                  "hover:bg-muted transition-colors",
+                  ui.selection?.slotId === slot.id && "bg-primary/20 ring-1 ring-primary"
+                )}
+                onClick={() => handleSlotClick(slot.id)}
+                tabIndex={0}
+                role="button"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") handleSlotClick(slot.id);
+                }}
+              >
+                {!slot.slash.rest ? (
+                  <SlashNotation
+                    articulation={slot.slash.articulation}
+                    tied={slot.slash.tied}
+                    size={slashSize}
+                  />
+                ) : (
+                  <span className="font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
+                    𝄽
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {ui.showSlashes && isBeamed && (
           <BeamedSlashGroup
             slots={beat.slots.map((s) => s.slash)}
             size={slashSize === "sm" ? "sm" : "md"}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
