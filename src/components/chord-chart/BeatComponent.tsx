@@ -2,6 +2,7 @@ import React from "react";
 import { useChartStore } from "@/lib/store";
 import type { Beat } from "@/lib/schema";
 import { SlashNotation } from "./SlashNotation";
+import { BeamedSlashGroup } from "./BeamedSlashGroup";
 import { ChordSymbol } from "./ChordSymbol";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,14 @@ export function BeatComponent({
     });
   };
 
+  const isBeamed = beat.division !== "quarter" && beat.slots.length > 1;
+  const slashSize =
+    beat.division === "quarter"
+      ? "lg"
+      : beat.division === "sixteenth" || beat.division === "sixteenthTriplet"
+        ? "sm"
+        : "md";
+
   return (
     <div
       className={cn(
@@ -52,7 +61,7 @@ export function BeatComponent({
           <div
             key={slot.id}
             className={cn(
-              "flex flex-col items-center cursor-pointer p-0.5 rounded",
+              "flex flex-col items-center cursor-pointer p-0.5 rounded min-w-0",
               "hover:bg-muted transition-colors",
               ui.selection?.slotId === slot.id && "bg-primary/20 ring-1 ring-primary"
             )}
@@ -71,20 +80,14 @@ export function BeatComponent({
                 notationType={useChartStore.getState().chart.meta.notationType}
               />
             )}
-            {ui.showSlashes && !slot.slash.rest && (
+            {ui.showSlashes && !isBeamed && !slot.slash.rest && (
               <SlashNotation
                 articulation={slot.slash.articulation}
                 tied={slot.slash.tied}
-                size={
-                  beat.division === "quarter"
-                    ? "lg"
-                    : beat.division === "sixteenth" || beat.division === "sixteenthTriplet"
-                      ? "sm"
-                      : "md"
-                }
+                size={slashSize}
               />
             )}
-            {slot.slash.rest && (
+            {ui.showSlashes && !isBeamed && slot.slash.rest && (
               <span className="text-muted-foreground" aria-label="Rest">
                 𝄽
               </span>
@@ -92,6 +95,14 @@ export function BeatComponent({
           </div>
         ))}
       </div>
+      {ui.showSlashes && isBeamed && (
+        <div className="flex justify-center w-full mt-0.5">
+          <BeamedSlashGroup
+            slots={beat.slots.map((s) => s.slash)}
+            size={slashSize === "sm" ? "sm" : "md"}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,13 @@
 import React from "react";
 import { useChartStore } from "@/lib/store";
+import { parseChord } from "@/lib/chordParser";
+import { formatChord } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ARTICULATIONS, CHORD_QUALITIES } from "@/lib/constants";
 import {
   Undo2,
   Redo2,
@@ -33,9 +37,50 @@ export function Toolbar() {
     toggleShowLyrics,
     toggleShowInstructions,
     updateMeta,
+    updateSlot,
     exportJSON,
     importJSON,
   } = useChartStore();
+
+  const { selection } = ui;
+  const selectedSection = selection ? chart.sections.find((s) => s.id === selection.sectionId) : null;
+  const selectedMeasure =
+    selectedSection && selection?.measureId
+      ? selectedSection.measures.find((m) => m.id === selection.measureId)
+      : null;
+  const selectedBeat =
+    selectedMeasure && selection?.beatId ? selectedMeasure.beats.find((b) => b.id === selection.beatId) : null;
+  const selectedSlot =
+    selectedBeat && selection?.slotId ? selectedBeat.slots.find((s) => s.id === selection.slotId) : null;
+
+  const chordInputRef = React.useRef<HTMLInputElement>(null);
+  const [chordInputValue, setChordInputValue] = React.useState("");
+
+  React.useEffect(() => {
+    if (selectedSlot && selection?.sectionId && selection?.measureId && selection?.beatId) {
+      const isNashville = chart.meta.notationType === "nashville";
+      const nextValue = isNashville && selectedSlot.nashvilleChord
+        ? `${selectedSlot.nashvilleChord.degree}${selectedSlot.nashvilleChord.quality ? CHORD_QUALITIES.find((q) => q.value === selectedSlot.nashvilleChord!.quality)?.symbol ?? selectedSlot.nashvilleChord.quality : ""}`
+        : selectedSlot.chord
+          ? formatChord(selectedSlot.chord)
+          : "";
+      setChordInputValue(nextValue);
+      requestAnimationFrame(() => chordInputRef.current?.focus());
+    }
+  }, [selectedSlot?.id, selection?.sectionId, selection?.measureId, selection?.beatId, selection?.slotId, chart.meta.notationType]);
+
+  const applyChordFromInput = () => {
+    if (!selectedSlot || !selection?.sectionId || !selection?.measureId || !selection?.beatId) return;
+    const isNashville = chart.meta.notationType === "nashville";
+    const result = parseChord(chordInputValue.trim(), isNashville);
+    if (!result?.valid) return;
+    if (result.chord) {
+      updateSlot(selection.sectionId, selection.measureId, selection.beatId, selectedSlot.id, { chord: result.chord, nashvilleChord: null });
+    }
+    if (result.nashville) {
+      updateSlot(selection.sectionId, selection.measureId, selection.beatId, selectedSlot.id, { nashvilleChord: result.nashville, chord: null });
+    }
+  };
 
   const handleExport = () => {
     const json = exportJSON();
@@ -175,6 +220,49 @@ export function Toolbar() {
             <TooltipContent>Toggle instructions</TooltipContent>
           </Tooltip>
         </div>
+        {selectedSlot && selection?.sectionId && selection?.measureId && selection?.beatId && (
+          <>
+            <Separator orientation="vertical" className="h-6" />
+            <div className="flex items-center gap-2" role="group" aria-label="Selected slot">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Chord</span>
+              <Input
+                ref={chordInputRef}
+                type="text"
+                value={chordInputValue}
+                onChange={(e) => setChordInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyChordFromInput();
+                  }
+                }}
+                placeholder={chart.meta.notationType === "nashville" ? "e.g. 4m7" : "e.g. Am7"}
+                className="w-24 font-mono text-sm h-8"
+                aria-label="Type chord for selected slot (press Enter to apply)"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
+              <Select
+                value={selectedSlot.slash.articulation}
+                onValueChange={(v: "none" | "accent" | "staccato" | "marcato") =>
+                  updateSlot(selection.sectionId, selection.measureId, selection.beatId, selectedSlot.id, {
+                    slash: { ...selectedSlot.slash, articulation: v },
+                  })
+                }
+              >
+                <SelectTrigger className="w-24 h-8" aria-label="Articulation">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ARTICULATIONS.map((a) => (
+                    <SelectItem key={a} value={a}>
+                      {a === "none" ? "None" : a.charAt(0).toUpperCase() + a.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
         <Separator orientation="vertical" className="h-6" />
         <div className="flex items-center gap-1">
           <Tooltip>
@@ -197,6 +285,60 @@ export function Toolbar() {
             <TooltipContent>Zoom in</TooltipContent>
           </Tooltip>
         </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              className="flex items-center gap-1.5 px-1 text-muted-foreground"
+              aria-label="Division shortcuts: 1 Quarter, 2 Eighth, 3 Triplet, 4 Sixteenth, 5 Sixteenth triplet"
+            >
+              {[
+                { key: "1", note: "♩" },
+                { key: "2", note: "♪" },
+                { key: "3", note: "♪₃" },
+                { key: "4", note: "♬" },
+                { key: "5", note: "♬₃" },
+              ].map(({ key: k, note }) => (
+                <span key={k} className="flex items-center gap-0.5">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    className="inline-block flex-shrink-0"
+                    aria-hidden
+                  >
+                    <rect
+                      x="1"
+                      y="1"
+                      width="16"
+                      height="16"
+                      rx="3"
+                      ry="3"
+                      fill="currentColor"
+                      opacity="0.1"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeOpacity="0.5"
+                    />
+                    <text
+                      x="9"
+                      y="12.5"
+                      textAnchor="middle"
+                      className="text-[10px] font-semibold fill-current"
+                    >
+                      {k}
+                    </text>
+                  </svg>
+                  <span className="text-sm leading-none" aria-hidden>
+                    {note}
+                  </span>
+                </span>
+              ))}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            With a beat selected, press 1–5 to set subdivision (slash count).
+          </TooltipContent>
+        </Tooltip>
         <div className="flex-1" />
         <Tooltip>
           <TooltipTrigger asChild>

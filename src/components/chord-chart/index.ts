@@ -7,6 +7,7 @@ export { BeatComponent } from "./BeatComponent";
 export { ChordSymbol } from "./ChordSymbol";
 export { ChordInput } from "./ChordInput";
 export { SlashNotation } from "./SlashNotation";
+export { BeamedSlashGroup } from "./BeamedSlashGroup";
 export { Barline } from "./Barline";
 export { NavigationMarker, SectionNavigation } from "./NavigationMarkers";
 export { TimeSignatureDisplay } from "./TimeSignatureDisplay";
