@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { ChordChartEditor } from "../components/chord-chart";
+import "../styles/globals.css";
+import "../styles/chord-chart.css";
+---
+
+<Layout title="Chord Chart Editor">
+  <main class="h-screen">
+    <ChordChartEditor client:load />
+  </main>
+</Layout>

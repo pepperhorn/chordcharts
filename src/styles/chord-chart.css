@@ -1,0 +1,86 @@
+/* Chord Chart Editor Styles */
+:root,
+[data-theme="light"] {
+  --chart-background: hsl(0 0% 100%);
+  --chart-foreground: hsl(222.2 47.4% 11.2%);
+  --chart-muted: hsl(210 40% 96.1%);
+  --chart-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --chart-border: hsl(214.3 31.8% 91.4%);
+  --chart-primary: hsl(221.2 83.2% 53.3%);
+  --chart-primary-foreground: hsl(210 40% 98%);
+  --chart-ring: hsl(221.2 83.2% 53.3%);
+}
+
+[data-theme="dark"] {
+  --chart-background: hsl(222.2 84% 4.9%);
+  --chart-foreground: hsl(210 40% 98%);
+  --chart-muted: hsl(217.2 32.6% 17.5%);
+  --chart-muted-foreground: hsl(215 20.2% 65.1%);
+  --chart-border: hsl(217.2 32.6% 17.5%);
+  --chart-primary: hsl(217.2 91.2% 59.8%);
+  --chart-primary-foreground: hsl(222.2 47.4% 11.2%);
+  --chart-ring: hsl(217.2 91.2% 59.8%);
+}
+
+[data-theme="high-contrast"] {
+  --chart-background: hsl(0 0% 0%);
+  --chart-foreground: hsl(0 0% 100%);
+  --chart-muted: hsl(0 0% 15%);
+  --chart-muted-foreground: hsl(0 0% 80%);
+  --chart-border: hsl(0 0% 100%);
+  --chart-primary: hsl(60 100% 50%);
+  --chart-primary-foreground: hsl(0 0% 0%);
+  --chart-ring: hsl(60 100% 50%);
+}
+
+.chord-chart-editor *:focus-visible {
+  outline: 2px solid var(--chart-ring);
+  outline-offset: 2px;
+}
+
+.chord-chart-skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 0.5rem 1rem;
+  background: var(--chart-primary);
+  color: var(--chart-primary-foreground);
+}
+
+.chord-chart-skip-link:focus {
+  left: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chord-chart-editor *,
+  .chord-chart-editor *::before,
+  .chord-chart-editor *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .chord-chart-editor [role="toolbar"],
+  .chord-chart-editor [role="complementary"] {
+    display: none;
+  }
+  .chord-chart-editor {
+    background: white;
+    color: black;
+  }
+}
