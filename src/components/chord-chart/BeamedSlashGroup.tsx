@@ -21,12 +21,15 @@ const SLASH_HEIGHT = 14;
 const SLASH_WIDTH = 9;
 const SLASH_STROKE = 2.2;
 
+// Local SVG dimensions for individual noteheads (fixed size, never stretched)
+const NOTE_SVG_WIDTH = SLASH_WIDTH + 8;
+const NOTE_CENTER_X = NOTE_SVG_WIDTH / 2;
+
 /**
  * Renders standard slash notation with stems and beams.
- * - Eighth notes (2 slots): single beam
- * - Eighth triplets (3 slots): single beam with "3"
- * - Sixteenth notes (4 slots): double beam
- * - Sixteenth triplets (6 slots): two groups of 3, each with double beam and "3"
+ * Uses HTML layout for positioning so noteheads maintain consistent size
+ * regardless of container width. Beams are CSS divs that stretch between
+ * percentage-positioned stems.
  */
 export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: BeamedSlashGroupProps) {
   const n = slots.length;
@@ -35,7 +38,6 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   if (n === 6) {
     const group1 = slots.slice(0, 3);
     const group2 = slots.slice(3, 6);
-    // Adjust selectedIndex for each group
     const group1Selected = selectedIndex >= 0 && selectedIndex < 3 ? selectedIndex : -1;
     const group2Selected = selectedIndex >= 3 ? selectedIndex - 3 : -1;
     return (
@@ -46,131 +48,179 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
     );
   }
 
-  // Use percentage-based positioning (viewBox 0-100 for width)
-  const viewBoxWidth = 100;
-  const slotWidthPct = viewBoxWidth / n;
-
-  // Use unified slash proportions for consistency (scaled for viewBox)
-  const slashHeight = SLASH_HEIGHT;
-  const slashWidth = Math.min(SLASH_WIDTH, slotWidthPct * 0.4);
-  const slashStrokeWidth = SLASH_STROKE;
   const beamHeight = 3;
   const beamGap = 3.5;
   const stemWidth = 1.2;
 
-  // Triplet indicator for eighth triplets (n=3)
   const isEighthTriplet = n === 3;
-  // Sixteenth notes have double beam
   const isSixteenth = n === 4;
 
-  // Calculate slash position (center at SLASH_CENTER_Y)
-  const slashTopY = SLASH_CENTER_Y - slashHeight / 2;
-  const slashBottomY = SLASH_CENTER_Y + slashHeight / 2;
+  const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
+  const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  // Beam positioned to create consistent ~20px stem height
-  const beam1Y = 6 + beamHeight / 2;
+  const beam1Y = isEighthTriplet ? 16 + beamHeight / 2 : 6 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  // Stem extends from top of first beam down to top of slash
   const stemTop = beam1Y - beamHeight / 2;
-  // Triplet indicator: centered on middle slot, positioned above beam with 3px padding
-  const middleSlotX = 1.5 * slotWidthPct; // Center of slot index 1 (middle of 3)
-  const tripletY = stemTop - 3; // 3px above top of beam
+  const tripletY = stemTop - 3;
 
-  // Calculate stem X positions using percentage-based slot positions
-  const getSlotCenterX = (i: number) => (i + 0.5) * slotWidthPct;
-  const getStemX = (i: number) => getSlotCenterX(i) + slashWidth / 2;
-  const firstStemX = getStemX(0);
-  const lastStemX = getStemX(n - 1);
+  // Slot percentage positions (center of each slot)
+  const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
+  // Stem is at the right edge of the slash notehead
+  const stemOffset = SLASH_WIDTH / 2;
 
-  // Articulation positions
   const belowSlashY = slashBottomY + 6;
-
   const divisionClass = isEighthTriplet ? 'eighth-triplet' : isSixteenth ? 'sixteenth' : 'eighth';
 
   return (
-    <svg
-      width="100%"
-      height={FIXED_HEIGHT}
-      viewBox={`0 0 ${viewBoxWidth} ${FIXED_HEIGHT}`}
-      preserveAspectRatio="none"
-      className={`beamed-slash-group beamed-slash-group--${divisionClass}`}
+    <div
+      className={`beamed-slash-group beamed-slash-group--${divisionClass} relative w-full`}
+      style={{ height: FIXED_HEIGHT }}
       role="img"
       aria-label={`Beamed rhythm, ${n} notes per beat${isEighthTriplet ? ", triplet" : ""}`}
-      style={{ display: 'block' }}
     >
-      {/* Triplet indicator for eighth triplets - centered on middle slot */}
+      {/* Selection highlights */}
+      {slots.map((_, i) =>
+        i === selectedIndex ? (
+          <div
+            key={`sel-${i}`}
+            className="absolute top-0 bottom-0"
+            style={{
+              left: `${(i / n) * 100}%`,
+              width: `${100 / n}%`,
+              background: '#fffcba',
+              opacity: 0.5,
+            }}
+          />
+        ) : null
+      )}
+
+      {/* Triplet indicator for eighth triplets */}
       {isEighthTriplet && (
-        <text
-          x={middleSlotX}
-          y={tripletY}
-          textAnchor="middle"
-          dominantBaseline="auto"
-          fontSize={11}
-          fontWeight="bold"
-          fontStyle="italic"
-          fill="currentColor"
+        <span
+          className="absolute"
+          style={{
+            left: `${getSlotPct(1)}%`,
+            top: tripletY - 13,
+            transform: 'translateX(-50%)',
+            fontSize: 11,
+            fontWeight: 'bold',
+            fontStyle: 'italic',
+            lineHeight: 1,
+          }}
         >
           3
-        </text>
+        </span>
       )}
+
       {/* Primary beam */}
-      <line
-        x1={firstStemX}
-        y1={beam1Y}
-        x2={lastStemX}
-        y2={beam1Y}
-        stroke="currentColor"
-        strokeWidth={beamHeight}
-        strokeLinecap="butt"
+      <div
+        className="absolute bg-current"
+        style={{
+          left: `calc(${getSlotPct(0)}% + ${stemOffset}px)`,
+          right: `calc(${100 - getSlotPct(n - 1)}% - ${stemOffset}px)`,
+          top: beam1Y - beamHeight / 2,
+          height: beamHeight,
+        }}
       />
+
       {/* Secondary beam for sixteenth notes */}
       {isSixteenth && (
-        <line
-          x1={firstStemX}
-          y1={beam2Y}
-          x2={lastStemX}
-          y2={beam2Y}
-          stroke="currentColor"
-          strokeWidth={beamHeight}
-          strokeLinecap="butt"
+        <div
+          className="absolute bg-current"
+          style={{
+            left: `calc(${getSlotPct(0)}% + ${stemOffset}px)`,
+            right: `calc(${100 - getSlotPct(n - 1)}% - ${stemOffset}px)`,
+            top: beam2Y - beamHeight / 2,
+            height: beamHeight,
+          }}
         />
       )}
+
+      {/* Individual noteheads + stems */}
       {slots.map((slot, i) => {
-        const cx = getSlotCenterX(i);
-        const slashX1 = cx - slashWidth / 2;
-        const slashY1 = slashBottomY;
-        const slashX2 = cx + slashWidth / 2;
-        const slashY2 = slashTopY;
-        const stemX = slashX2;
         const isSelected = i === selectedIndex;
 
         if (slot.rest) {
           return (
-            <g key={i} className={isSelected ? 'beamed-slash-group__slot--selected' : ''} aria-label="Rest">
-              {isSelected && <rect x={i * slotWidthPct} y={0} width={slotWidthPct} height={FIXED_HEIGHT} fill="#fffcba" fillOpacity={0.5} />}
-              <rect x={cx - 4} y={SLASH_CENTER_Y - 2} width={8} height={4} fill="currentColor" />
-            </g>
+            <div
+              key={i}
+              className={isSelected ? 'beamed-slash-group__slot--selected' : ''}
+              style={{
+                position: 'absolute',
+                left: `${getSlotPct(i)}%`,
+                transform: 'translateX(-50%)',
+                top: 0,
+                height: FIXED_HEIGHT,
+              }}
+              aria-label="Rest"
+            >
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+                <rect x={NOTE_CENTER_X - 4} y={SLASH_CENTER_Y - 2} width={8} height={4} fill="currentColor" />
+              </svg>
+            </div>
           );
         }
 
         return (
-          <g key={i} className={isSelected ? 'beamed-slash-group__slot--selected' : ''}>
-            {isSelected && <rect x={i * slotWidthPct} y={0} width={slotWidthPct} height={FIXED_HEIGHT} fill="#fffcba" fillOpacity={0.5} />}
-            <line x1={stemX} y1={stemTop} x2={stemX} y2={slashY2} stroke="currentColor" strokeWidth={stemWidth} strokeLinecap="round" />
-            <line x1={slashX1} y1={slashY1} x2={slashX2} y2={slashY2} stroke="currentColor" strokeWidth={slashStrokeWidth} strokeLinecap="round" />
-            {slot.articulation === "accent" && (
-              <path d={`M ${cx - 4} ${belowSlashY + 5} L ${cx} ${belowSlashY} L ${cx + 4} ${belowSlashY + 5}`} fill="none" stroke="currentColor" strokeWidth={size === "sm" ? 1.2 : 1.5} strokeLinecap="round" strokeLinejoin="round" />
-            )}
-            {slot.articulation === "staccato" && (
-              <circle cx={cx} cy={belowSlashY + 2} r={size === "sm" ? 1.5 : 2} fill="currentColor" />
-            )}
-            {slot.articulation === "marcato" && (
-              <path d={`M ${cx - 3} ${beam1Y - 6} L ${cx} ${beam1Y - 12} L ${cx + 3} ${beam1Y - 6}`} fill="currentColor" stroke="currentColor" strokeWidth="0.5" />
-            )}
-          </g>
+          <div
+            key={i}
+            className={isSelected ? 'beamed-slash-group__slot--selected' : ''}
+            style={{
+              position: 'absolute',
+              left: `${getSlotPct(i)}%`,
+              transform: 'translateX(-50%)',
+              top: 0,
+              height: FIXED_HEIGHT,
+            }}
+          >
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+              {/* Stem */}
+              <line
+                x1={NOTE_CENTER_X + stemOffset}
+                y1={stemTop}
+                x2={NOTE_CENTER_X + stemOffset}
+                y2={slashTopY}
+                stroke="currentColor"
+                strokeWidth={stemWidth}
+                strokeLinecap="round"
+              />
+              {/* Slash notehead */}
+              <line
+                x1={NOTE_CENTER_X - SLASH_WIDTH / 2}
+                y1={slashBottomY}
+                x2={NOTE_CENTER_X + SLASH_WIDTH / 2}
+                y2={slashTopY}
+                stroke="currentColor"
+                strokeWidth={SLASH_STROKE}
+                strokeLinecap="round"
+              />
+              {/* Articulations */}
+              {slot.articulation === "accent" && (
+                <path
+                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY + 5} L ${NOTE_CENTER_X} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 5}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={size === "sm" ? 1.2 : 1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {slot.articulation === "staccato" && (
+                <circle cx={NOTE_CENTER_X} cy={belowSlashY + 2} r={size === "sm" ? 1.5 : 2} fill="currentColor" />
+              )}
+              {slot.articulation === "marcato" && (
+                <path
+                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 6} L ${NOTE_CENTER_X} ${beam1Y - 12} L ${NOTE_CENTER_X + 3} ${beam1Y - 6}`}
+                  fill="currentColor"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
+              )}
+            </svg>
+          </div>
         );
       })}
-    </svg>
+    </div>
   );
 }
 
@@ -178,97 +228,154 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
 function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slots: SlotSlash[]; size?: "sm" | "md"; selectedIndex?: number }) {
   const n = 3;
 
-  // Use percentage-based positioning (viewBox 0-100 for width)
-  const viewBoxWidth = 100;
-  const slotWidthPct = viewBoxWidth / n;
-
-  // Use unified slash proportions
-  const slashHeight = SLASH_HEIGHT;
-  const slashWidth = Math.min(SLASH_WIDTH, slotWidthPct * 0.4);
-  const slashStrokeWidth = SLASH_STROKE;
   const beamHeight = 3;
   const beamGap = 3.5;
   const stemWidth = 1.2;
 
-  // Position slash center at same Y as other notations
-  const slashTopY = SLASH_CENTER_Y - slashHeight / 2;
-  const slashBottomY = SLASH_CENTER_Y + slashHeight / 2;
+  const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
+  const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  // Beam positioned to create consistent stem height
-  const beam1Y = 6 + beamHeight / 2;
+  const beam1Y = 16 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  // Stem extends from top of first beam down to top of slash
   const stemTop = beam1Y - beamHeight / 2;
-  // Triplet indicator: centered on middle slot, positioned above beam with 3px padding
-  const middleSlotX = 1.5 * slotWidthPct; // Center of slot index 1 (middle of 3)
-  const tripletY = stemTop - 3; // 3px above top of beam
+  const tripletY = stemTop - 3;
 
-  const getSlotCenterX = (i: number) => (i + 0.5) * slotWidthPct;
-  const getStemX = (i: number) => getSlotCenterX(i) + slashWidth / 2;
-  const firstStemX = getStemX(0);
-  const lastStemX = getStemX(n - 1);
-
+  const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
+  const stemOffset = SLASH_WIDTH / 2;
   const belowSlashY = slashBottomY + 4;
 
   return (
-    <svg
-      width="100%"
-      height={FIXED_HEIGHT}
-      viewBox={`0 0 ${viewBoxWidth} ${FIXED_HEIGHT}`}
-      preserveAspectRatio="none"
-      className="sixteenth-triplet-group"
+    <div
+      className="sixteenth-triplet-group relative w-full"
+      style={{ height: FIXED_HEIGHT }}
       role="img"
       aria-label="Sixteenth triplet group"
-      style={{ display: 'block' }}
     >
-      {/* Triplet "3" indicator - centered on middle slot */}
-      <text
-        x={middleSlotX}
-        y={tripletY}
-        textAnchor="middle"
-        dominantBaseline="auto"
-        fontSize={11}
-        fontWeight="bold"
-        fontStyle="italic"
-        fill="currentColor"
+      {/* Selection highlights */}
+      {slots.map((_, i) =>
+        i === selectedIndex ? (
+          <div
+            key={`sel-${i}`}
+            className="absolute top-0 bottom-0"
+            style={{
+              left: `${(i / n) * 100}%`,
+              width: `${100 / n}%`,
+              background: '#fffcba',
+              opacity: 0.5,
+            }}
+          />
+        ) : null
+      )}
+
+      {/* Triplet "3" indicator */}
+      <span
+        className="absolute"
+        style={{
+          left: `${getSlotPct(1)}%`,
+          top: tripletY - 13,
+          transform: 'translateX(-50%)',
+          fontSize: 11,
+          fontWeight: 'bold',
+          fontStyle: 'italic',
+          lineHeight: 1,
+        }}
       >
         3
-      </text>
+      </span>
+
       {/* Double beam */}
-      <line x1={firstStemX} y1={beam1Y} x2={lastStemX} y2={beam1Y} stroke="currentColor" strokeWidth={beamHeight} strokeLinecap="butt" />
-      <line x1={firstStemX} y1={beam2Y} x2={lastStemX} y2={beam2Y} stroke="currentColor" strokeWidth={beamHeight} strokeLinecap="butt" />
+      <div
+        className="absolute bg-current"
+        style={{
+          left: `calc(${getSlotPct(0)}% + ${stemOffset}px)`,
+          right: `calc(${100 - getSlotPct(n - 1)}% - ${stemOffset}px)`,
+          top: beam1Y - beamHeight / 2,
+          height: beamHeight,
+        }}
+      />
+      <div
+        className="absolute bg-current"
+        style={{
+          left: `calc(${getSlotPct(0)}% + ${stemOffset}px)`,
+          right: `calc(${100 - getSlotPct(n - 1)}% - ${stemOffset}px)`,
+          top: beam2Y - beamHeight / 2,
+          height: beamHeight,
+        }}
+      />
+
+      {/* Individual noteheads + stems */}
       {slots.map((slot, i) => {
-        const cx = getSlotCenterX(i);
-        const slashX1 = cx - slashWidth / 2;
-        const slashY1 = slashBottomY;
-        const slashX2 = cx + slashWidth / 2;
-        const slashY2 = slashTopY;
-        const stemX = slashX2;
         const isSelected = i === selectedIndex;
 
         if (slot.rest) {
           return (
-            <g key={i} className={isSelected ? 'sixteenth-triplet-group__slot--selected' : ''} aria-label="Rest">
-              {isSelected && <rect x={i * slotWidthPct} y={0} width={slotWidthPct} height={FIXED_HEIGHT} fill="#fffcba" fillOpacity={0.5} />}
-              <rect x={cx - 3} y={SLASH_CENTER_Y - 1.5} width={6} height={3} fill="currentColor" />
-            </g>
+            <div
+              key={i}
+              className={isSelected ? 'sixteenth-triplet-group__slot--selected' : ''}
+              style={{
+                position: 'absolute',
+                left: `${getSlotPct(i)}%`,
+                transform: 'translateX(-50%)',
+                top: 0,
+                height: FIXED_HEIGHT,
+              }}
+              aria-label="Rest"
+            >
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+                <rect x={NOTE_CENTER_X - 3} y={SLASH_CENTER_Y - 1.5} width={6} height={3} fill="currentColor" />
+              </svg>
+            </div>
           );
         }
 
         return (
-          <g key={i} className={isSelected ? 'sixteenth-triplet-group__slot--selected' : ''}>
-            {isSelected && <rect x={i * slotWidthPct} y={0} width={slotWidthPct} height={FIXED_HEIGHT} fill="#fffcba" fillOpacity={0.5} />}
-            <line x1={stemX} y1={stemTop} x2={stemX} y2={slashY2} stroke="currentColor" strokeWidth={stemWidth} strokeLinecap="round" />
-            <line x1={slashX1} y1={slashY1} x2={slashX2} y2={slashY2} stroke="currentColor" strokeWidth={slashStrokeWidth} strokeLinecap="round" />
-            {slot.articulation === "accent" && (
-              <path d={`M ${cx - 3} ${belowSlashY + 4} L ${cx} ${belowSlashY} L ${cx + 3} ${belowSlashY + 4}`} fill="none" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" />
-            )}
-            {slot.articulation === "staccato" && (
-              <circle cx={cx} cy={belowSlashY + 1.5} r={1.2} fill="currentColor" />
-            )}
-          </g>
+          <div
+            key={i}
+            className={isSelected ? 'sixteenth-triplet-group__slot--selected' : ''}
+            style={{
+              position: 'absolute',
+              left: `${getSlotPct(i)}%`,
+              transform: 'translateX(-50%)',
+              top: 0,
+              height: FIXED_HEIGHT,
+            }}
+          >
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+              <line
+                x1={NOTE_CENTER_X + stemOffset}
+                y1={stemTop}
+                x2={NOTE_CENTER_X + stemOffset}
+                y2={slashTopY}
+                stroke="currentColor"
+                strokeWidth={stemWidth}
+                strokeLinecap="round"
+              />
+              <line
+                x1={NOTE_CENTER_X - SLASH_WIDTH / 2}
+                y1={slashBottomY}
+                x2={NOTE_CENTER_X + SLASH_WIDTH / 2}
+                y2={slashTopY}
+                stroke="currentColor"
+                strokeWidth={SLASH_STROKE}
+                strokeLinecap="round"
+              />
+              {slot.articulation === "accent" && (
+                <path
+                  d={`M ${NOTE_CENTER_X - 3} ${belowSlashY + 4} L ${NOTE_CENTER_X} ${belowSlashY} L ${NOTE_CENTER_X + 3} ${belowSlashY + 4}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {slot.articulation === "staccato" && (
+                <circle cx={NOTE_CENTER_X} cy={belowSlashY + 1.5} r={1.2} fill="currentColor" />
+              )}
+            </svg>
+          </div>
         );
       })}
-    </svg>
+    </div>
   );
 }

@@ -110,11 +110,11 @@ export function Toolbar() {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2 p-2 border-b bg-muted/30" role="toolbar" aria-label="Chart editor toolbar">
-        <div className="flex items-center gap-1">
+      <div className="toolbar flex items-center gap-2 p-2 border-b bg-muted/30" role="toolbar" aria-label="Chart editor toolbar">
+        <div className="toolbar__history flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={undo} disabled={!canUndo()} aria-label="Undo">
+              <Button className="toolbar__undo-btn" variant="ghost" size="icon" onClick={undo} disabled={!canUndo()} aria-label="Undo">
                 <Undo2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -122,26 +122,26 @@ export function Toolbar() {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={redo} disabled={!canRedo()} aria-label="Redo">
+              <Button className="toolbar__redo-btn" variant="ghost" size="icon" onClick={redo} disabled={!canRedo()} aria-label="Redo">
                 <Redo2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Redo (Ctrl+Y)</TooltipContent>
           </Tooltip>
         </div>
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="toolbar__separator h-6" />
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="sm" onClick={() => addSection()} aria-label="Add new section">
+            <Button className="toolbar__add-section-btn" variant="outline" size="sm" onClick={() => addSection()} aria-label="Add new section">
               <Plus className="h-4 w-4 mr-1" />
               Section
             </Button>
           </TooltipTrigger>
           <TooltipContent>Add new section</TooltipContent>
         </Tooltip>
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="toolbar__separator h-6" />
         <Select value={chart.meta.notationType} onValueChange={(v: "standard" | "nashville") => updateMeta({ notationType: v })}>
-          <SelectTrigger className="w-32" aria-label="Notation type">
+          <SelectTrigger className="toolbar__notation-type-select w-32" aria-label="Notation type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +150,7 @@ export function Toolbar() {
           </SelectContent>
         </Select>
         <Select value={String(chart.meta.measuresPerLine)} onValueChange={(v) => updateMeta({ measuresPerLine: parseInt(v) })}>
-          <SelectTrigger className="w-24" aria-label="Measures per line">
+          <SelectTrigger className="toolbar__measures-per-line-select w-24" aria-label="Measures per line">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -161,11 +161,12 @@ export function Toolbar() {
             ))}
           </SelectContent>
         </Select>
-        <Separator orientation="vertical" className="h-6" />
-        <div className="flex items-center gap-1">
+        <Separator orientation="vertical" className="toolbar__separator h-6" />
+        <div className="toolbar__visibility-toggles flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                className="toolbar__toggle-slashes-btn"
                 variant={ui.showSlashes ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleShowSlashes}
@@ -180,6 +181,7 @@ export function Toolbar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                className="toolbar__toggle-dynamics-btn"
                 variant={ui.showDynamics ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleShowDynamics}
@@ -194,6 +196,7 @@ export function Toolbar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                className="toolbar__toggle-lyrics-btn"
                 variant={ui.showLyrics ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleShowLyrics}
@@ -208,6 +211,7 @@ export function Toolbar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                className="toolbar__toggle-instructions-btn"
                 variant={ui.showInstructions ? "default" : "ghost"}
                 size="icon"
                 onClick={toggleShowInstructions}
@@ -222,9 +226,9 @@ export function Toolbar() {
         </div>
         {selectedSlot && selection?.sectionId && selection?.measureId && selection?.beatId && (
           <>
-            <Separator orientation="vertical" className="h-6" />
-            <div className="flex items-center gap-2" role="group" aria-label="Selected slot">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">Chord</span>
+            <Separator orientation="vertical" className="toolbar__separator h-6" />
+            <div className="toolbar__slot-editor flex items-center gap-2" role="group" aria-label="Selected slot">
+              <span className="toolbar__chord-label text-sm text-muted-foreground whitespace-nowrap">Chord</span>
               <Input
                 ref={chordInputRef}
                 type="text"
@@ -237,11 +241,11 @@ export function Toolbar() {
                   }
                 }}
                 placeholder={chart.meta.notationType === "nashville" ? "e.g. 4m7" : "e.g. Am7"}
-                className="w-24 font-petaluma text-sm h-8"
+                className="toolbar__chord-input w-24 font-petaluma text-sm h-8"
                 aria-label="Type chord for selected slot (press Enter to apply)"
                 data-toolbar-chord-input
               />
-              <span className="text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
+              <span className="toolbar__articulation-label text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
               <Select
                 value={selectedSlot.slash.articulation}
                 onValueChange={(v: "none" | "accent" | "staccato" | "marcato") =>
@@ -250,7 +254,7 @@ export function Toolbar() {
                   })
                 }
               >
-                <SelectTrigger className="w-24 h-8" aria-label="Articulation">
+                <SelectTrigger className="toolbar__articulation-select w-24 h-8" aria-label="Articulation">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,22 +268,22 @@ export function Toolbar() {
             </div>
           </>
         )}
-        <Separator orientation="vertical" className="h-6" />
-        <div className="flex items-center gap-1">
+        <Separator orientation="vertical" className="toolbar__separator h-6" />
+        <div className="toolbar__zoom flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => setZoom(ui.zoom - 10)} disabled={ui.zoom <= 50} aria-label="Zoom out">
+              <Button className="toolbar__zoom-out-btn" variant="ghost" size="icon" onClick={() => setZoom(ui.zoom - 10)} disabled={ui.zoom <= 50} aria-label="Zoom out">
                 <ZoomOut className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Zoom out</TooltipContent>
           </Tooltip>
-          <span className="text-sm w-12 text-center" aria-label={`Zoom level: ${ui.zoom}%`}>
+          <span className="toolbar__zoom-level text-sm w-12 text-center" aria-label={`Zoom level: ${ui.zoom}%`}>
             {ui.zoom}%
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => setZoom(ui.zoom + 10)} disabled={ui.zoom >= 200} aria-label="Zoom in">
+              <Button className="toolbar__zoom-in-btn" variant="ghost" size="icon" onClick={() => setZoom(ui.zoom + 10)} disabled={ui.zoom >= 200} aria-label="Zoom in">
                 <ZoomIn className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -289,7 +293,7 @@ export function Toolbar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <span
-              className="flex items-center gap-1.5 px-1 text-muted-foreground"
+              className="toolbar__division-shortcuts flex items-center gap-1.5 px-1 text-muted-foreground"
               aria-label="Division shortcuts: 1 Quarter, 2 Eighth, 3 Triplet, 4 Sixteenth, 5 Sixteenth triplet"
             >
               {[
@@ -299,12 +303,12 @@ export function Toolbar() {
                 { key: "4", note: "♬" },
                 { key: "5", note: "♬₃" },
               ].map(({ key: k, note }) => (
-                <span key={k} className="flex items-center gap-0.5">
+                <span key={k} className="toolbar__division-shortcut flex items-center gap-0.5">
                   <svg
                     width="18"
                     height="18"
                     viewBox="0 0 18 18"
-                    className="inline-block flex-shrink-0"
+                    className="toolbar__division-key-icon inline-block flex-shrink-0"
                     aria-hidden
                   >
                     <rect
@@ -329,7 +333,7 @@ export function Toolbar() {
                       {k}
                     </text>
                   </svg>
-                  <span className="font-petaluma text-sm leading-none" aria-hidden>
+                  <span className="toolbar__division-note font-petaluma text-sm leading-none" aria-hidden>
                     {note}
                   </span>
                 </span>
@@ -340,10 +344,10 @@ export function Toolbar() {
             With a beat selected, press 1–5 to set subdivision (slash count).
           </TooltipContent>
         </Tooltip>
-        <div className="flex-1" />
+        <div className="toolbar__spacer flex-1" />
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleImport} aria-label="Import chart">
+            <Button className="toolbar__import-btn" variant="outline" size="icon" onClick={handleImport} aria-label="Import chart">
               <Upload className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -351,7 +355,7 @@ export function Toolbar() {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleExport} aria-label="Export chart">
+            <Button className="toolbar__export-btn" variant="outline" size="icon" onClick={handleExport} aria-label="Export chart">
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
