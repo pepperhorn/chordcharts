@@ -73,9 +73,9 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
           >
             <SectionHeader section={section} index={sectionIndex} />
             <div
-              className="grid gap-1"
+              className="chart-canvas__measures grid gap-1"
               style={{
-                gridTemplateColumns: `repeat(${measuresPerLine}, minmax(120px, 1fr))`,
+                gridTemplateColumns: `repeat(${Math.min(measuresPerLine, 4)}, minmax(min-content, 1fr))`,
               }}
             >
               {section.measures.map((measure, measureIndex) => (

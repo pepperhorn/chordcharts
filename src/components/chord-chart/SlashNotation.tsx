@@ -1,18 +1,24 @@
 import React from "react";
 
-/** SMuFL slash notehead (Petaluma): U+E100 Slash with vertical ends */
-const SLASH_NOTEHEAD = "\uE100";
-
 interface SlashNotationProps {
   articulation: "none" | "accent" | "staccato" | "marcato";
   tied?: boolean;
   size?: "sm" | "md" | "lg";
 }
 
+// Fixed height for all sizes to ensure vertical alignment across beat types
+const FIXED_HEIGHT = 52;
+const SLASH_CENTER_Y = 34; // Positioned to align with beamed notation
+
+// Unified slash size for consistency across all subdivisions
+const SLASH_HEIGHT = 14;
+const SLASH_WIDTH = 9;
+const SLASH_STROKE = 2.2;
+
 const sizeMap = {
-  sm: { width: 12, height: 20, fontSize: 18 },
-  md: { width: 16, height: 28, fontSize: 24 },
-  lg: { width: 32, height: 48, fontSize: 44 },
+  sm: { width: 14, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
+  md: { width: 16, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
+  lg: { width: 22, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
 };
 
 export function SlashNotation({
@@ -20,46 +26,43 @@ export function SlashNotation({
   tied = false,
   size = "md",
 }: SlashNotationProps) {
-  const { width, height, fontSize } = sizeMap[size];
-  // Quarter note: stem on right (stems down) → accent/staccato above notehead
-  const stemsDown = true;
-  const needsSpaceAbove =
-    (stemsDown && (articulation === "accent" || articulation === "staccato")) ||
-    articulation === "marcato";
-  const articulationSpace = size === "lg" ? 14 : size === "md" ? 10 : 8;
-  const totalHeight = height + (needsSpaceAbove ? articulationSpace : 0);
-  const slashY = height - 2 + (needsSpaceAbove ? articulationSpace : 0);
+  const { width, slashHeight, slashWidth } = sizeMap[size];
   const strokeW = Math.max(1.5, width / 12);
   const dotR = Math.max(2, width / 10);
-  // Articulation y: above the slash (in the reserved space), drawn after slash so visible
-  const aboveSlashY = articulationSpace * 0.5;
+
+  // Slash position - centered at fixed Y for alignment
+  const slashCenterY = SLASH_CENTER_Y;
+  const slashX1 = (width - slashWidth) / 2;
+  const slashX2 = slashX1 + slashWidth;
+  const slashY1 = slashCenterY + slashHeight / 2;
+  const slashY2 = slashCenterY - slashHeight / 2;
+
+  // Articulation positioned above the slash
+  const aboveSlashY = slashY2 - 8;
 
   return (
     <svg
       width={width}
-      height={totalHeight}
-      viewBox={`0 0 ${width} ${totalHeight}`}
-      className="flex-shrink-0"
+      height={FIXED_HEIGHT}
+      viewBox={`0 0 ${width} ${FIXED_HEIGHT}`}
+      className="slash-notation flex-shrink-0"
+      style={{ display: 'block' }}
       role="img"
       aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
     >
-      <defs>
-        <style>{`svg .petaluma-slash { font-family: "Petaluma", sans-serif; fill: currentColor; }`}</style>
-      </defs>
-      {/* Slash first so articulations draw on top and are visible */}
-      <text
-        x={width / 2}
-        y={slashY}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize={fontSize}
-        className="petaluma-slash"
-      >
-        {SLASH_NOTEHEAD}
-      </text>
+      {/* Slash notehead drawn as a thick diagonal line */}
+      <line
+        x1={slashX1}
+        y1={slashY1}
+        x2={slashX2}
+        y2={slashY2}
+        stroke="currentColor"
+        strokeWidth={SLASH_STROKE}
+        strokeLinecap="round"
+      />
       {tied && (
         <path
-          d={`M ${width} ${height * 0.7 + (needsSpaceAbove ? articulationSpace : 0)} Q ${width + 8} ${height * 0.9 + (needsSpaceAbove ? articulationSpace : 0)} ${width + 16} ${height * 0.7 + (needsSpaceAbove ? articulationSpace : 0)}`}
+          d={`M ${width} ${slashCenterY + 4} Q ${width + 8} ${slashCenterY + 10} ${width + 16} ${slashCenterY + 4}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeW}

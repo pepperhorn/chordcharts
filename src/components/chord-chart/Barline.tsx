@@ -7,7 +7,8 @@ interface BarlineProps {
 }
 
 export function Barline({ type }: BarlineProps) {
-  const height = 60;
+  // Height matches beat__rhythm-row (52px) for proper vertical alignment
+  const height = 52;
   const width = type === "single" ? 8 : type === "double" || type === "final" ? 16 : 24;
 
   return (
@@ -15,7 +16,8 @@ export function Barline({ type }: BarlineProps) {
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className="flex-shrink-0"
+      className={`barline barline--${type} flex-shrink-0`}
+      style={{ display: 'block' }}
       role="img"
       aria-label={`${type} barline`}
     >
