@@ -110,7 +110,7 @@ export function Toolbar() {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2 p-2 border-b bg-background" role="toolbar" aria-label="Chart editor toolbar">
+      <div className="flex items-center gap-2 p-2 border-b bg-muted/30" role="toolbar" aria-label="Chart editor toolbar">
         <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -245,7 +245,7 @@ export function Toolbar() {
               <Select
                 value={selectedSlot.slash.articulation}
                 onValueChange={(v: "none" | "accent" | "staccato" | "marcato") =>
-                  updateSlot(selection.sectionId, selection.measureId, selection.beatId, selectedSlot.id, {
+                  updateSlot(selection.sectionId!, selection.measureId!, selection.beatId!, selectedSlot.id, {
                     slash: { ...selectedSlot.slash, articulation: v },
                   })
                 }

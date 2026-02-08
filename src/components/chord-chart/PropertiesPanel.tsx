@@ -24,7 +24,7 @@ export function PropertiesPanel() {
     selectedBeat && selection?.slotId ? selectedBeat.slots.find((s) => s.id === selection.slotId) : null;
 
   return (
-    <div className="w-72 border-r bg-muted/30 flex flex-col" role="complementary" aria-label="Properties panel">
+    <div className="w-72 border-r bg-muted/50 flex flex-col" role="complementary" aria-label="Properties panel">
       <div className="p-3 border-b">
         <h2 className="font-semibold">Properties</h2>
       </div>

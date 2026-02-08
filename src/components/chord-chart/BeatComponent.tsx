@@ -119,7 +119,7 @@ export function BeatComponent({
           </div>
         ))}
         {ui.showSlashes && isBeamed && (
-          <div className="beat__beamed-container" style={{ gridColumn: `1 / -1` }}>
+          <div className="beat__beamed-container w-full" style={{ gridColumn: `1 / -1`, justifySelf: 'stretch' }}>
             <BeamedSlashGroup
               slots={beat.slots.map((s) => s.slash)}
               size={slashSize === "sm" ? "sm" : "md"}

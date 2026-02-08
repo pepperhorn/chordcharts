@@ -50,7 +50,7 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
   return (
     <ScrollArea className={cn("flex-1 p-4", className)}>
       <div
-        className="space-y-8"
+        className="space-y-8 w-full"
         style={{ transform: `scale(${ui.zoom / 100})`, transformOrigin: "top left" }}
         role="region"
         aria-label="Chord chart canvas"
@@ -73,23 +73,32 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
           >
             <SectionHeader section={section} index={sectionIndex} />
             <div
-              className="chart-canvas__measures grid gap-1"
-              style={{
-                gridTemplateColumns: `repeat(${Math.min(measuresPerLine, 4)}, minmax(min-content, 1fr))`,
-              }}
+              className="chart-canvas__measures flex flex-wrap gap-1"
             >
-              {section.measures.map((measure, measureIndex) => (
-                <MeasureComponent
-                  key={measure.id}
-                  measure={measure}
-                  sectionId={section.id}
-                  measureIndex={measureIndex}
-                  timeSignature={section.timeSignature}
-                  showTimeSignature={measureIndex === 0}
-                  isFirstInLine={measureIndex % measuresPerLine === 0}
-                  isLastInLine={(measureIndex + 1) % measuresPerLine === 0}
-                />
-              ))}
+              {section.measures.map((measure, measureIndex) => {
+                const effectiveMeasuresPerLine = Math.min(measuresPerLine, 4);
+                return (
+                  <div
+                    key={measure.id}
+                    className="chart-canvas__measure-wrapper"
+                    style={{
+                      flexBasis: `calc(${100 / effectiveMeasuresPerLine}% - ${(effectiveMeasuresPerLine - 1) * 4 / effectiveMeasuresPerLine}px)`,
+                      flexGrow: 1,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <MeasureComponent
+                      measure={measure}
+                      sectionId={section.id}
+                      measureIndex={measureIndex}
+                      timeSignature={section.timeSignature}
+                      showTimeSignature={measureIndex === 0}
+                      isFirstInLine={measureIndex % measuresPerLine === 0}
+                      isLastInLine={(measureIndex + 1) % measuresPerLine === 0}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </section>
         ))}
