@@ -1,9 +1,10 @@
 import React from "react";
 
 interface SlotSlash {
-  articulation: "none" | "accent" | "staccato" | "marcato";
-  tied: boolean;
+  articulation: "none" | "accent" | "staccato" | "marcato" | "tenuto" | "fermata";
+  tie: "none" | "start" | "stop" | "continue";
   rest: boolean;
+  durationMultiplier?: number;
 }
 
 interface BeamedSlashGroupProps {

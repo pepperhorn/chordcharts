@@ -57,7 +57,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
       {measure.ending && (
         <div className="measure__ending absolute -top-4 left-0 right-0 flex">
           <span className="measure__ending-label text-xs border-l-2 border-t-2 border-r-2 border-foreground px-2">
-            {measure.ending}.
+            {measure.ending.number}.
           </span>
         </div>
       )}
@@ -76,7 +76,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
           <div className="measure__barline measure__barline--start flex flex-col">
             {ui.showSlashes && <div className="measure__barline-spacer min-h-[2rem]" />}
             <div className={cn("measure__barline-display flex min-h-[52px]", ui.showSlashes ? "items-center" : "items-center")}>
-              <Barline type={measure.barlineStart} position="start" hasRepeat={measure.repeatStart} />
+              <Barline type={measure.barlineStart} position="start" />
             </div>
           </div>
         )}
@@ -100,7 +100,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
         <div className="measure__barline measure__barline--end flex flex-col">
           {ui.showSlashes && <div className="measure__barline-spacer min-h-[2rem]" />}
           <div className="measure__barline-display flex items-center min-h-[52px]">
-            <Barline type={measure.barlineEnd} position="end" hasRepeat={measure.repeatEnd} />
+            <Barline type={measure.barlineEnd} position="end" />
           </div>
         </div>
       </div>

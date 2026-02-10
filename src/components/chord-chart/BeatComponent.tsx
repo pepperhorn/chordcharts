@@ -114,7 +114,7 @@ export function BeatComponent({
                 {!slot.slash.rest ? (
                   <SlashNotation
                     articulation={slot.slash.articulation}
-                    tied={slot.slash.tied}
+                    tie={slot.slash.tie}
                     size={slashSize}
                   />
                 ) : (

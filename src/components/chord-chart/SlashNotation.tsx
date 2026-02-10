@@ -1,8 +1,8 @@
 import React from "react";
 
 interface SlashNotationProps {
-  articulation: "none" | "accent" | "staccato" | "marcato";
-  tied?: boolean;
+  articulation: "none" | "accent" | "staccato" | "marcato" | "tenuto" | "fermata";
+  tie?: "none" | "start" | "stop" | "continue";
   size?: "sm" | "md" | "lg";
 }
 
@@ -23,7 +23,7 @@ const sizeMap = {
 
 export function SlashNotation({
   articulation = "none",
-  tied = false,
+  tie = "none",
   size = "md",
 }: SlashNotationProps) {
   const { width, slashHeight, slashWidth } = sizeMap[size];
@@ -48,7 +48,7 @@ export function SlashNotation({
       className="slash-notation flex-shrink-0"
       style={{ display: 'block' }}
       role="img"
-      aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
+      aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tie !== "none" ? `, ${tie} tie` : ""}`}
     >
       {/* Slash notehead drawn as a thick diagonal line */}
       <line
@@ -60,7 +60,7 @@ export function SlashNotation({
         strokeWidth={SLASH_STROKE}
         strokeLinecap="round"
       />
-      {tied && (
+      {(tie === "start" || tie === "continue") && (
         <path
           d={`M ${width} ${slashCenterY + 4} Q ${width + 8} ${slashCenterY + 10} ${width + 16} ${slashCenterY + 4}`}
           fill="none"
@@ -89,6 +89,28 @@ export function SlashNotation({
           stroke="currentColor"
           strokeWidth={strokeW * 0.3}
         />
+      )}
+      {articulation === "tenuto" && (
+        <line
+          x1={width * 0.25}
+          y1={aboveSlashY}
+          x2={width * 0.75}
+          y2={aboveSlashY}
+          stroke="currentColor"
+          strokeWidth={strokeW}
+          strokeLinecap="round"
+        />
+      )}
+      {articulation === "fermata" && (
+        <g>
+          <path
+            d={`M ${width * 0.2} ${aboveSlashY} Q ${width / 2} ${aboveSlashY - 6} ${width * 0.8} ${aboveSlashY}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={strokeW * 0.8}
+          />
+          <circle cx={width / 2} cy={aboveSlashY + 2} r={dotR * 0.7} fill="currentColor" />
+        </g>
       )}
     </svg>
   );

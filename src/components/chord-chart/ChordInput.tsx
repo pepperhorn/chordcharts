@@ -74,7 +74,7 @@ export function ChordInput({
     if (parseResult.nashville) {
       onNashvilleChange(parseResult.nashville);
       setNashvilleDegree(parseResult.nashville.degree);
-      setQuality(parseResult.nashville.quality);
+      setQuality(parseResult.nashville.quality ?? "maj");
     }
   };
 

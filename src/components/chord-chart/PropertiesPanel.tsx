@@ -114,7 +114,7 @@ export function PropertiesPanel() {
                 </div>
                 <div className="space-y-2">
                   <Label>Ending</Label>
-                  <Select value={selectedMeasure.ending?.toString() ?? "none"} onValueChange={(v) => updateMeasure(selection.sectionId, selectedMeasure.id, { ending: v === "none" ? null : parseInt(v) })}>
+                  <Select value={selectedMeasure.ending?.number.toString() ?? "none"} onValueChange={(v) => updateMeasure(selection.sectionId, selectedMeasure.id, { ending: v === "none" ? null : { number: parseInt(v), type: "start" as const } })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">None</SelectItem>

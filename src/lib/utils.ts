@@ -16,7 +16,10 @@ export function createBeatSlot(): BeatSlot {
     id: generateId(),
     chord: null,
     nashvilleChord: null,
-    slash: { articulation: "none", tied: false, rest: false },
+    polychord: null,
+    slash: { articulation: "none", tie: "none", rest: false, durationMultiplier: 1 },
+    push: false,
+    hidden: false,
   };
 }
 
@@ -38,10 +41,11 @@ export function createMeasure(timeSignature: TimeSignature): Measure {
     barlineStart: "single",
     barlineEnd: "single",
     beats: Array.from({ length: timeSignature.beats }, () => createBeat()),
-    repeatStart: false,
-    repeatEnd: false,
     repeatCount: 2,
     ending: null,
+    simile: false,
+    simileCount: 1,
+    timeSignatureChange: null,
   };
 }
 
@@ -51,24 +55,35 @@ export function createSection(name = "New Section"): Section {
     id: generateId(),
     name,
     timeSignature,
+    keySignature: null,
     measures: [createMeasure(timeSignature)],
     navigation: null,
     rehearsalMark: null,
+    repeatCount: 1,
   };
 }
 
 export function createEmptyChart(): ChordChart {
   return {
-    version: "1.0",
+    version: "1.1",
     meta: {
       title: "Untitled",
       composer: "",
       arranger: "",
+      lyricist: "",
+      copyright: "",
       key: "C",
       tempo: 120,
       tempoText: "",
+      style: "",
+      genre: "",
       notationType: "standard",
       measuresPerLine: 4,
+      year: null,
+      album: "",
+      artist: "",
+      tags: [],
+      notes: "",
     },
     sections: [createSection("Intro")],
   };

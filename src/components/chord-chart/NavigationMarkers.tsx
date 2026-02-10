@@ -16,6 +16,7 @@ const MARKERS: Record<Navigation["type"], { symbol: string; label: string }> = {
   dcFine: { symbol: "D.C. al Fine", label: "Da Capo al Fine" },
   fine: { symbol: "Fine", label: "Fine" },
   toCoda: { symbol: "To Coda 𝄌", label: "To Coda" },
+  dsAlFine: { symbol: "D.S. al Fine", label: "Dal Segno al Fine" },
 };
 
 export function NavigationMarker({ type, className }: NavigationMarkerProps) {
@@ -40,7 +41,7 @@ interface SectionNavigationProps {
 }
 
 const START_TYPES: Navigation["type"][] = ["segno", "coda"];
-const END_TYPES: Navigation["type"][] = ["dsCoda", "dsSegno", "dcCoda", "dcFine", "fine", "toCoda"];
+const END_TYPES: Navigation["type"][] = ["dsCoda", "dsSegno", "dcCoda", "dcFine", "fine", "toCoda", "dsAlFine"];
 
 export function SectionNavigation({ navigation, position }: SectionNavigationProps) {
   if (!navigation) return null;
