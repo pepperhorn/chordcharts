@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SlashNotationProps {
-  articulation: "none" | "accent" | "staccato" | "marcato";
+  articulation: "none" | "accent" | "staccato" | "marcato" | "legato";
   tied?: boolean;
   size?: "sm" | "md" | "lg";
 }
@@ -37,8 +37,9 @@ export function SlashNotation({
   const slashY1 = slashCenterY + slashHeight / 2;
   const slashY2 = slashCenterY - slashHeight / 2;
 
-  // Articulation positioned above the slash
+  // Articulation positions
   const aboveSlashY = slashY2 - 8;
+  const belowSlashY = slashY1 + 5;
 
   return (
     <svg
@@ -68,10 +69,10 @@ export function SlashNotation({
           strokeWidth={strokeW}
         />
       )}
-      {/* Articulations above notehead (stems down): accent, staccato; marcato always above subdivision */}
+      {/* Accent: horizontal > above the slash */}
       {articulation === "accent" && (
         <path
-          d={`M ${width * 0.2} ${aboveSlashY + strokeW} L ${width * 0.5} ${aboveSlashY - strokeW} L ${width * 0.8} ${aboveSlashY + strokeW}`}
+          d={`M ${width * 0.1} ${aboveSlashY - 3.5} L ${width * 0.9} ${aboveSlashY} L ${width * 0.1} ${aboveSlashY + 3.5}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeW}
@@ -79,15 +80,31 @@ export function SlashNotation({
           strokeLinejoin="round"
         />
       )}
+      {/* Staccato: dot above */}
       {articulation === "staccato" && (
         <circle cx={width / 2} cy={aboveSlashY} r={dotR} fill="currentColor" />
       )}
+      {/* Marcato: tall narrow ^ always above */}
       {articulation === "marcato" && (
         <path
-          d={`M ${width * 0.3} ${aboveSlashY - 2} L ${width / 2} ${aboveSlashY + 3} L ${width * 0.7} ${aboveSlashY - 2}`}
-          fill="currentColor"
+          d={`M ${width * 0.15} ${aboveSlashY + 4} L ${width * 0.5} ${aboveSlashY - 5} L ${width * 0.85} ${aboveSlashY + 4}`}
+          fill="none"
           stroke="currentColor"
-          strokeWidth={strokeW * 0.3}
+          strokeWidth={strokeW}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+      {/* Legato: horizontal bar below the slash */}
+      {articulation === "legato" && (
+        <line
+          x1={width * 0.1}
+          y1={belowSlashY}
+          x2={width * 0.9}
+          y2={belowSlashY}
+          stroke="currentColor"
+          strokeWidth={strokeW}
+          strokeLinecap="round"
         />
       )}
     </svg>

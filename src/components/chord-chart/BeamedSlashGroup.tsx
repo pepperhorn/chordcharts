@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SlotSlash {
-  articulation: "none" | "accent" | "staccato" | "marcato";
+  articulation: "none" | "accent" | "staccato" | "marcato" | "legato";
   tied: boolean;
   rest: boolean;
 }
@@ -194,10 +194,10 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
                 strokeWidth={SLASH_STROKE}
                 strokeLinecap="round"
               />
-              {/* Articulations */}
+              {/* Accent: horizontal > below the slash */}
               {slot.articulation === "accent" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY + 5} L ${NOTE_CENTER_X} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 5}`}
+                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 3.5} L ${NOTE_CENTER_X - 4} ${belowSlashY + 7}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={size === "sm" ? 1.2 : 1.5}
@@ -205,15 +205,31 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
                   strokeLinejoin="round"
                 />
               )}
+              {/* Staccato: dot below */}
               {slot.articulation === "staccato" && (
                 <circle cx={NOTE_CENTER_X} cy={belowSlashY + 2} r={size === "sm" ? 1.5 : 2} fill="currentColor" />
               )}
+              {/* Marcato: tall narrow ^ always above the beam */}
               {slot.articulation === "marcato" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 6} L ${NOTE_CENTER_X} ${beam1Y - 12} L ${NOTE_CENTER_X + 3} ${beam1Y - 6}`}
-                  fill="currentColor"
+                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 5} L ${NOTE_CENTER_X} ${beam1Y - 13} L ${NOTE_CENTER_X + 3} ${beam1Y - 5}`}
+                  fill="none"
                   stroke="currentColor"
-                  strokeWidth="0.5"
+                  strokeWidth={size === "sm" ? 1.2 : 1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {/* Legato: horizontal bar below the slash */}
+              {slot.articulation === "legato" && (
+                <line
+                  x1={NOTE_CENTER_X - 4.5}
+                  y1={belowSlashY + 2}
+                  x2={NOTE_CENTER_X + 4.5}
+                  y2={belowSlashY + 2}
+                  stroke="currentColor"
+                  strokeWidth={size === "sm" ? 1.2 : 1.5}
+                  strokeLinecap="round"
                 />
               )}
             </svg>
@@ -359,18 +375,43 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
                 strokeWidth={SLASH_STROKE}
                 strokeLinecap="round"
               />
+              {/* Accent: horizontal > below */}
               {slot.articulation === "accent" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 3} ${belowSlashY + 4} L ${NOTE_CENTER_X} ${belowSlashY} L ${NOTE_CENTER_X + 3} ${belowSlashY + 4}`}
+                  d={`M ${NOTE_CENTER_X - 3} ${belowSlashY} L ${NOTE_CENTER_X + 3} ${belowSlashY + 3} L ${NOTE_CENTER_X - 3} ${belowSlashY + 6}`}
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1}
+                  strokeWidth={1.2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               )}
+              {/* Staccato: dot below */}
               {slot.articulation === "staccato" && (
                 <circle cx={NOTE_CENTER_X} cy={belowSlashY + 1.5} r={1.2} fill="currentColor" />
+              )}
+              {/* Marcato: tall narrow ^ always above the beam */}
+              {slot.articulation === "marcato" && (
+                <path
+                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 5} L ${NOTE_CENTER_X} ${beam1Y - 13} L ${NOTE_CENTER_X + 3} ${beam1Y - 5}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {/* Legato: horizontal bar below */}
+              {slot.articulation === "legato" && (
+                <line
+                  x1={NOTE_CENTER_X - 3.5}
+                  y1={belowSlashY + 2}
+                  x2={NOTE_CENTER_X + 3.5}
+                  y2={belowSlashY + 2}
+                  stroke="currentColor"
+                  strokeWidth={1.2}
+                  strokeLinecap="round"
+                />
               )}
             </svg>
           </div>

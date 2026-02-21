@@ -168,7 +168,7 @@ export function PropertiesPanel() {
                 </div>
                 <div className="space-y-2">
                   <Label>Articulation</Label>
-                  <Select value={selectedSlot.slash.articulation} onValueChange={(v: "none" | "accent" | "staccato" | "marcato") => updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, { slash: { ...selectedSlot.slash, articulation: v } })}>
+                  <Select value={selectedSlot.slash.articulation} onValueChange={(v: "none" | "accent" | "staccato" | "marcato" | "legato") => updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, { slash: { ...selectedSlot.slash, articulation: v } })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ARTICULATIONS.map((a) => <SelectItem key={a} value={a}>{a.charAt(0).toUpperCase() + a.slice(1)}</SelectItem>)}

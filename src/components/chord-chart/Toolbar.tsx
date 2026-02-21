@@ -248,7 +248,7 @@ export function Toolbar() {
               <span className="toolbar__articulation-label text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
               <Select
                 value={selectedSlot.slash.articulation}
-                onValueChange={(v: "none" | "accent" | "staccato" | "marcato") =>
+                onValueChange={(v: "none" | "accent" | "staccato" | "marcato" | "legato") =>
                   updateSlot(selection.sectionId!, selection.measureId!, selection.beatId!, selectedSlot.id, {
                     slash: { ...selectedSlot.slash, articulation: v },
                   })

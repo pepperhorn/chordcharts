@@ -33,6 +33,7 @@ export const ARTICULATIONS = [
   "accent",
   "staccato",
   "marcato",
+  "legato",
 ] as const;
 
 // Dynamic markings
