@@ -50,7 +50,7 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
   return (
     <ScrollArea className={cn("flex-1 p-4", className)}>
       <div
-        className="space-y-8 w-full"
+        className="space-y-8 w-full min-w-0"
         style={{ transform: `scale(${ui.zoom / 100})`, transformOrigin: "top left" }}
         role="region"
         aria-label="Chord chart canvas"

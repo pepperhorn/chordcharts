@@ -38,8 +38,8 @@ export function MeasureComponent(props: MeasureComponentProps) {
       className={cn(
         "measure",
         "relative flex flex-col border rounded-sm p-1 min-h-[120px] cursor-pointer transition-colors",
-        isSelected && "measure--selected ring-2 ring-primary bg-primary/5",
-        "hover:bg-muted/50 focus-within:ring-2 focus-within:ring-primary"
+        isSelected && "measure--selected ring-2 ring-inset ring-primary bg-primary/5",
+        "hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary"
       )}
       onClick={handleClick}
       role="group"

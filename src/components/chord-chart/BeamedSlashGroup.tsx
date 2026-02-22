@@ -58,10 +58,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = isEighthTriplet ? 16 + beamHeight / 2 : 6 + beamHeight / 2;
+  const beam1Y = 6 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
-  const tripletY = stemTop - 3;
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
@@ -100,12 +99,15 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
           className="absolute"
           style={{
             left: `${getSlotPct(1)}%`,
-            top: tripletY - 13,
+            top: 1,
             transform: 'translateX(-50%)',
             fontSize: 11,
             fontWeight: 'bold',
             fontStyle: 'italic',
             lineHeight: 1,
+            backgroundColor: 'hsl(var(--background))',
+            paddingLeft: 1,
+            paddingRight: 1,
           }}
         >
           3
@@ -197,7 +199,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               {/* Accent: horizontal > below the slash */}
               {slot.articulation === "accent" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 3.5} L ${NOTE_CENTER_X - 4} ${belowSlashY + 7}`}
+                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 2} L ${NOTE_CENTER_X - 4} ${belowSlashY + 4}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={size === "sm" ? 1.2 : 1.5}
@@ -212,7 +214,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               {/* Marcato: tall narrow ^ always above the beam */}
               {slot.articulation === "marcato" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 5} L ${NOTE_CENTER_X} ${beam1Y - 13} L ${NOTE_CENTER_X + 3} ${beam1Y - 5}`}
+                  d={`M ${NOTE_CENTER_X - 3} ${stemTop + 2} L ${NOTE_CENTER_X} ${stemTop - 5} L ${NOTE_CENTER_X + 3} ${stemTop + 2}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={size === "sm" ? 1.2 : 1.5}
@@ -251,10 +253,9 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 16 + beamHeight / 2;
+  const beam1Y = 6 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
-  const tripletY = stemTop - 3;
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
   const stemOffset = SLASH_WIDTH / 2;
@@ -288,12 +289,15 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
         className="absolute"
         style={{
           left: `${getSlotPct(1)}%`,
-          top: tripletY - 13,
+          top: 1,
           transform: 'translateX(-50%)',
           fontSize: 11,
           fontWeight: 'bold',
           fontStyle: 'italic',
           lineHeight: 1,
+          backgroundColor: 'hsl(var(--background))',
+          paddingLeft: 1,
+          paddingRight: 1,
         }}
       >
         3
@@ -393,7 +397,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               {/* Marcato: tall narrow ^ always above the beam */}
               {slot.articulation === "marcato" && (
                 <path
-                  d={`M ${NOTE_CENTER_X - 3} ${beam1Y - 5} L ${NOTE_CENTER_X} ${beam1Y - 13} L ${NOTE_CENTER_X + 3} ${beam1Y - 5}`}
+                  d={`M ${NOTE_CENTER_X - 3} ${stemTop + 2} L ${NOTE_CENTER_X} ${stemTop - 5} L ${NOTE_CENTER_X + 3} ${stemTop + 2}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={1.2}

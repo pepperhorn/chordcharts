@@ -3,7 +3,7 @@ import { CHORD_ROOTS, CHORD_QUALITIES, CHORD_ALIASES, CHORD_EXTENSIONS, NASHVILL
 /** Quality aliases sorted longest-first for parsing. */
 const QUALITY_ALIASES = [...CHORD_ALIASES].sort((a, b) => b.pattern.length - a.pattern.length);
 
-const VALID_QUALITIES = new Set(CHORD_QUALITIES.map((q) => q.value));
+const VALID_QUALITIES: Set<string> = new Set(CHORD_QUALITIES.map((q) => q.value));
 const EXTENSIONS_SET = new Set(CHORD_EXTENSIONS);
 const ROOTS_BY_LENGTH = [...CHORD_ROOTS].sort((a, b) => b.length - a.length);
 
@@ -33,9 +33,17 @@ function parseQualityWithExtensions(rest: string): { quality: string; extensions
     if (pattern === "" && lower === "") return { quality: "maj", extensions: [] };
     if (!pattern) continue;
     if (!lower.startsWith(pattern.toLowerCase())) continue;
-    const remainder = rest.slice(pattern.length).trim();
+    let remainder = rest.slice(pattern.length).trim();
     if (remainder === "") return { quality, extensions: [] };
-    if (EXTENSIONS_SET.has(remainder as (typeof CHORD_EXTENSIONS)[number])) return { quality, extensions: [remainder] };
+    // Greedily consume one or more extensions (e.g. "#5#9", "b5b9")
+    const extensions: string[] = [];
+    while (remainder.length > 0) {
+      const ext = (CHORD_EXTENSIONS as readonly string[]).find((e) => remainder.startsWith(e));
+      if (!ext) break;
+      extensions.push(ext);
+      remainder = remainder.slice(ext.length).trim();
+    }
+    if (remainder === "") return { quality, extensions };
   }
   return null;
 }
