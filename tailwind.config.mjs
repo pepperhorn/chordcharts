@@ -4,6 +4,10 @@ export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   theme: {
     extend: {
+      fontFamily: {
+        petaluma: ['"Petaluma"', 'system-ui', 'sans-serif'],
+        'petaluma-text': ['"PetalumaText"', 'system-ui', 'sans-serif'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

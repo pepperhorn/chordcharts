@@ -16,9 +16,9 @@ const SLASH_WIDTH = 9;
 const SLASH_STROKE = 2.2;
 
 const sizeMap = {
-  sm: { width: 14, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
-  md: { width: 16, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
-  lg: { width: 22, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
+  sm: { width: 22, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
+  md: { width: 28, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
+  lg: { width: 34, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
 };
 
 export function SlashNotation({
@@ -30,12 +30,14 @@ export function SlashNotation({
   const strokeW = Math.max(1.5, width / 12);
   const dotR = Math.max(2, width / 10);
 
-  // Slash position - centered at fixed Y for alignment
+  // Notehead glyph sizing: SMuFL noteheadSlashVerticalEnds (U+E100)
+  const glyphFontSize = size === "lg" ? 30 : size === "md" ? 26 : 22;
+  const glyphHalfH = slashHeight / 2;
+
+  // Articulation positions relative to notehead center
   const slashCenterY = SLASH_CENTER_Y;
-  const slashX1 = (width - slashWidth) / 2;
-  const slashX2 = slashX1 + slashWidth;
-  const slashY1 = slashCenterY + slashHeight / 2;
-  const slashY2 = slashCenterY - slashHeight / 2;
+  const slashY2 = slashCenterY - glyphHalfH; // estimated notehead top
+  const slashY1 = slashCenterY + glyphHalfH; // estimated notehead bottom
 
   // Articulation positions
   const aboveSlashY = slashY2 - 8;
@@ -51,16 +53,15 @@ export function SlashNotation({
       role="img"
       aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
     >
-      {/* Slash notehead drawn as a thick diagonal line */}
-      <line
-        x1={slashX1}
-        y1={slashY1}
-        x2={slashX2}
-        y2={slashY2}
-        stroke="currentColor"
-        strokeWidth={SLASH_STROKE}
-        strokeLinecap="round"
-      />
+      {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
+      <text
+        x={width / 2}
+        y={slashCenterY + 6}
+        textAnchor="middle"
+        fontFamily="Petaluma"
+        fontSize={glyphFontSize}
+        fill="currentColor"
+      >{'\uE100'}</text>
       {tied && (
         <path
           d={`M ${width} ${slashCenterY + 4} Q ${width + 8} ${slashCenterY + 10} ${width + 16} ${slashCenterY + 4}`}

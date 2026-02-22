@@ -156,7 +156,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               }}
               aria-label="Rest"
             >
-              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
                 <rect x={NOTE_CENTER_X - 4} y={SLASH_CENTER_Y - 2} width={8} height={4} fill="currentColor" />
               </svg>
             </div>
@@ -175,7 +175,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               height: FIXED_HEIGHT,
             }}
           >
-            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
               {/* Stem */}
               <line
                 x1={NOTE_CENTER_X + stemOffset}
@@ -186,16 +186,15 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
                 strokeWidth={stemWidth}
                 strokeLinecap="round"
               />
-              {/* Slash notehead */}
-              <line
-                x1={NOTE_CENTER_X - SLASH_WIDTH / 2}
-                y1={slashBottomY}
-                x2={NOTE_CENTER_X + SLASH_WIDTH / 2}
-                y2={slashTopY}
-                stroke="currentColor"
-                strokeWidth={SLASH_STROKE}
-                strokeLinecap="round"
-              />
+              {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
+              <text
+                x={NOTE_CENTER_X}
+                y={SLASH_CENTER_Y + 6}
+                textAnchor="middle"
+                fontFamily="Petaluma"
+                fontSize={22}
+                fill="currentColor"
+              >{'\uE100'}</text>
               {/* Accent: horizontal > below the slash */}
               {slot.articulation === "accent" && (
                 <path
@@ -341,7 +340,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               }}
               aria-label="Rest"
             >
-              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
                 <rect x={NOTE_CENTER_X - 3} y={SLASH_CENTER_Y - 1.5} width={6} height={3} fill="currentColor" />
               </svg>
             </div>
@@ -360,7 +359,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               height: FIXED_HEIGHT,
             }}
           >
-            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`}>
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
               <line
                 x1={NOTE_CENTER_X + stemOffset}
                 y1={stemTop}
@@ -370,15 +369,15 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
                 strokeWidth={stemWidth}
                 strokeLinecap="round"
               />
-              <line
-                x1={NOTE_CENTER_X - SLASH_WIDTH / 2}
-                y1={slashBottomY}
-                x2={NOTE_CENTER_X + SLASH_WIDTH / 2}
-                y2={slashTopY}
-                stroke="currentColor"
-                strokeWidth={SLASH_STROKE}
-                strokeLinecap="round"
-              />
+              {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
+              <text
+                x={NOTE_CENTER_X}
+                y={SLASH_CENTER_Y + 6}
+                textAnchor="middle"
+                fontFamily="Petaluma"
+                fontSize={18}
+                fill="currentColor"
+              >{'\uE100'}</text>
               {/* Accent: horizontal > below */}
               {slot.articulation === "accent" && (
                 <path
