@@ -64,8 +64,8 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  // Stem is at the right edge of the slash notehead
-  const stemOffset = SLASH_WIDTH / 2;
+  // Stem connects at top-right of glyph; glyph at fontSize=60 is ~9px half-width
+  const stemOffset = 9;
 
   const belowSlashY = slashBottomY + 6;
   const divisionClass = isEighthTriplet ? 'eighth-triplet' : isSixteenth ? 'sixteenth' : 'eighth';
@@ -101,6 +101,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
             left: `${getSlotPct(1)}%`,
             top: 2,
             transform: 'translateX(-50%)',
+            fontFamily: 'PetalumaText',
             fontSize: 22,
             fontWeight: 'bold',
             fontStyle: 'italic',
@@ -189,10 +190,11 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
               <text
                 x={NOTE_CENTER_X}
-                y={SLASH_CENTER_Y + 6}
+                y={SLASH_CENTER_Y}
                 textAnchor="middle"
+                dominantBaseline="middle"
                 fontFamily="Petaluma"
-                fontSize={22}
+                fontSize={60}
                 fill="currentColor"
               >{'\uE100'}</text>
               {/* Accent: horizontal > below the slash */}
@@ -257,7 +259,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const stemTop = beam1Y - beamHeight / 2;
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  const stemOffset = SLASH_WIDTH / 2;
+  const stemOffset = 9;
   const belowSlashY = slashBottomY + 4;
 
   return (
@@ -290,6 +292,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
           left: `${getSlotPct(1)}%`,
           top: 1,
           transform: 'translateX(-50%)',
+          fontFamily: 'PetalumaText',
           fontSize: 11,
           fontWeight: 'bold',
           fontStyle: 'italic',
@@ -372,10 +375,11 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
               <text
                 x={NOTE_CENTER_X}
-                y={SLASH_CENTER_Y + 6}
+                y={SLASH_CENTER_Y}
                 textAnchor="middle"
+                dominantBaseline="middle"
                 fontFamily="Petaluma"
-                fontSize={18}
+                fontSize={50}
                 fill="currentColor"
               >{'\uE100'}</text>
               {/* Accent: horizontal > below */}

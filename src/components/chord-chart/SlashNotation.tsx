@@ -31,7 +31,9 @@ export function SlashNotation({
   const dotR = Math.max(2, width / 10);
 
   // Notehead glyph sizing: SMuFL noteheadSlashVerticalEnds (U+E100)
-  const glyphFontSize = size === "lg" ? 30 : size === "md" ? 26 : 22;
+  // Petaluma is a 2048-UPM font; notehead is ~0.225× fontSize tall
+  // so to hit SLASH_HEIGHT≈14px we need fontSize ≈ 62px
+  const glyphFontSize = size === "lg" ? 70 : size === "md" ? 62 : 54;
   const glyphHalfH = slashHeight / 2;
 
   // Articulation positions relative to notehead center
@@ -49,6 +51,7 @@ export function SlashNotation({
       height={FIXED_HEIGHT}
       viewBox={`0 0 ${width} ${FIXED_HEIGHT}`}
       className="slash-notation flex-shrink-0"
+      overflow="visible"
       style={{ display: 'block' }}
       role="img"
       aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
@@ -56,8 +59,9 @@ export function SlashNotation({
       {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
       <text
         x={width / 2}
-        y={slashCenterY + 6}
+        y={slashCenterY}
         textAnchor="middle"
+        dominantBaseline="middle"
         fontFamily="Petaluma"
         fontSize={glyphFontSize}
         fill="currentColor"
