@@ -56,12 +56,13 @@ export function SlashNotation({
       role="img"
       aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
     >
-      {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100 */}
+      {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100
+          Petaluma baseline = notehead center (middle staff line),
+          so y={slashCenterY} positions the notehead center correctly. */}
       <text
         x={width / 2}
         y={slashCenterY}
         textAnchor="middle"
-        dominantBaseline="middle"
         fontFamily="Petaluma"
         fontSize={glyphFontSize}
         fill="currentColor"

@@ -192,7 +192,6 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
                 x={NOTE_CENTER_X}
                 y={SLASH_CENTER_Y}
                 textAnchor="middle"
-                dominantBaseline="middle"
                 fontFamily="Petaluma"
                 fontSize={60}
                 fill="currentColor"
@@ -377,7 +376,6 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
                 x={NOTE_CENTER_X}
                 y={SLASH_CENTER_Y}
                 textAnchor="middle"
-                dominantBaseline="middle"
                 fontFamily="Petaluma"
                 fontSize={50}
                 fill="currentColor"
