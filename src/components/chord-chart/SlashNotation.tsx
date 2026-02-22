@@ -7,8 +7,8 @@ interface SlashNotationProps {
 }
 
 // Fixed height for all sizes to ensure vertical alignment across beat types
-const FIXED_HEIGHT = 52;
-const SLASH_CENTER_Y = 34; // Positioned to align with beamed notation
+const FIXED_HEIGHT = 72;
+const SLASH_CENTER_Y = 50; // Positioned to align with beamed notation
 
 // Unified slash size for consistency across all subdivisions
 const SLASH_HEIGHT = 14;

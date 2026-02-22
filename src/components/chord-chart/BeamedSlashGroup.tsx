@@ -13,8 +13,8 @@ interface BeamedSlashGroupProps {
 }
 
 // Fixed height to match SlashNotation for vertical alignment
-const FIXED_HEIGHT = 52;
-const SLASH_CENTER_Y = 34; // Positioned lower to allow for longer stems
+const FIXED_HEIGHT = 72;
+const SLASH_CENTER_Y = 50; // Positioned lower to allow for longer stems
 
 // Unified slash dimensions for consistency across all subdivisions
 const SLASH_HEIGHT = 14;
@@ -58,7 +58,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 6 + beamHeight / 2;
+  const beam1Y = 26 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 
@@ -99,9 +99,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
           className="absolute"
           style={{
             left: `${getSlotPct(1)}%`,
-            top: 1,
+            top: 2,
             transform: 'translateX(-50%)',
-            fontSize: 11,
+            fontSize: 22,
             fontWeight: 'bold',
             fontStyle: 'italic',
             lineHeight: 1,
@@ -253,7 +253,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 6 + beamHeight / 2;
+  const beam1Y = 26 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 

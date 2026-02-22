@@ -92,7 +92,7 @@ export function BeatComponent({
           </div>
           {/* Rhythm row - uses same grid as chord row for alignment */}
           <div
-            className="beat__rhythm-row grid w-full items-center justify-items-center min-h-[52px] flex-shrink-0"
+            className="beat__rhythm-row grid w-full items-center justify-items-center min-h-[72px] flex-shrink-0"
             style={{ gridTemplateColumns: `repeat(${beat.slots.length}, minmax(min-content, 1fr))` }}
           >
             {!isBeamed && beat.slots.map((slot) => (
@@ -138,7 +138,7 @@ export function BeatComponent({
       ) : (
         /* Chords-only mode: single centered row replacing both chord + rhythm rows */
         <div
-          className="beat__chord-row beat__chord-row--chords-only grid w-full items-center justify-items-center min-h-[52px] px-0.5"
+          className="beat__chord-row beat__chord-row--chords-only grid w-full items-center justify-items-center min-h-[72px] px-0.5"
           style={{ gridTemplateColumns: `repeat(${beat.slots.length}, minmax(min-content, 1fr))` }}
         >
           {chordSlots}

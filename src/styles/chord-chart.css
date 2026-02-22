@@ -3,15 +3,10 @@
 /* Petaluma music font (Steinberg, SIL OFL) – chord display and music symbols */
 @font-face {
   font-family: "Petaluma";
-  src: url("https://cdn.jsdelivr.net/gh/steinbergmedia/petaluma@master/redist/woff/Petaluma.woff2") format("woff2"),
-       url("https://cdn.jsdelivr.net/gh/steinbergmedia/petaluma@master/redist/woff/Petaluma.woff") format("woff");
+  src: url("/fonts/Petaluma.woff2") format("woff2");
   font-display: swap;
   font-weight: normal;
   font-style: normal;
-}
-
-.chord-chart-editor .font-petaluma {
-  font-family: "Petaluma", var(--font-sans, system-ui, sans-serif);
 }
 
 :root,

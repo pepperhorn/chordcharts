@@ -66,7 +66,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
         {showTimeSignature && isFirstInLine && (
           <div className="measure__time-signature flex flex-col">
             {ui.showSlashes && <div className="measure__time-signature-spacer min-h-[2rem]" />}
-            <div className={cn("measure__time-signature-display flex min-h-[52px]", ui.showSlashes ? "items-end" : "items-center")}>
+            <div className={cn("measure__time-signature-display flex min-h-[72px]", ui.showSlashes ? "items-end" : "items-center")}>
               <TimeSignatureDisplay timeSignature={timeSignature} />
             </div>
           </div>
@@ -75,7 +75,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
         {isFirstInLine && !showTimeSignature && (
           <div className="measure__barline measure__barline--start flex flex-col">
             {ui.showSlashes && <div className="measure__barline-spacer min-h-[2rem]" />}
-            <div className={cn("measure__barline-display flex min-h-[52px]", ui.showSlashes ? "items-center" : "items-center")}>
+            <div className={cn("measure__barline-display flex min-h-[72px]", ui.showSlashes ? "items-center" : "items-center")}>
               <Barline type={measure.barlineStart} position="start" hasRepeat={measure.repeatStart} />
             </div>
           </div>
@@ -99,7 +99,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
         {/* End barline */}
         <div className="measure__barline measure__barline--end flex flex-col">
           {ui.showSlashes && <div className="measure__barline-spacer min-h-[2rem]" />}
-          <div className="measure__barline-display flex items-center min-h-[52px]">
+          <div className="measure__barline-display flex items-center min-h-[72px]">
             <Barline type={measure.barlineEnd} position="end" hasRepeat={measure.repeatEnd} />
           </div>
         </div>
