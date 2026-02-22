@@ -1,0 +1,17 @@
+/* Petaluma – SMuFL music notation font (Steinberg, SIL OFL) */
+@font-face {
+  font-family: "Petaluma";
+  src: url("/fonts/Petaluma.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* PetalumaText – companion text font for chord symbols and annotations */
+@font-face {
+  font-family: "PetalumaText";
+  src: url("/fonts/PetalumaText.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
