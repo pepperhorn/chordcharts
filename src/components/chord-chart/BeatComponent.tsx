@@ -158,7 +158,7 @@ export function BeatComponent({
           {isBeamed && (
             <div
               style={{ gridRow: 2, gridColumn: "1 / -1" }}
-              className="w-full"
+              className="beat__beamed-group w-full"
             >
               <BeamedSlashGroup
                 slots={beat.slots.map((s) => s.slash)}
@@ -171,7 +171,7 @@ export function BeatComponent({
       ) : (
         /* Chords-only mode – single equal-column row */
         <div
-          className="grid w-full items-center justify-items-center min-h-[72px] px-0.5"
+          className="beat__chord-grid grid w-full items-center justify-items-center min-h-[72px] px-0.5"
           style={{ gridTemplateColumns: `repeat(${n}, 1fr)`, ...(effectiveMinWidth ? { minWidth: effectiveMinWidth } : {}) }}
         >
           {beat.slots.map((slot, i) => (
