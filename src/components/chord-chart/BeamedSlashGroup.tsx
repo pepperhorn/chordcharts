@@ -159,7 +159,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               }}
               aria-label="Rest"
             >
-              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible" style={{ display: 'block' }}>
                 <rect x={NOTE_CENTER_X - 4} y={SLASH_CENTER_Y - 2} width={8} height={4} fill="currentColor" />
               </svg>
             </div>
@@ -178,7 +178,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
               height: FIXED_HEIGHT,
             }}
           >
-            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible" style={{ display: 'block' }}>
               {/* Stem */}
               <line
                 x1={NOTE_CENTER_X + stemOffset}
@@ -345,7 +345,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               }}
               aria-label="Rest"
             >
-              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
+              <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible" style={{ display: 'block' }}>
                 <rect x={NOTE_CENTER_X - 3} y={SLASH_CENTER_Y - 1.5} width={6} height={3} fill="currentColor" />
               </svg>
             </div>
@@ -364,7 +364,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
               height: FIXED_HEIGHT,
             }}
           >
-            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible">
+            <svg width={NOTE_SVG_WIDTH} height={FIXED_HEIGHT} viewBox={`0 0 ${NOTE_SVG_WIDTH} ${FIXED_HEIGHT}`} overflow="visible" style={{ display: 'block' }}>
               <line
                 x1={NOTE_CENTER_X + stemOffset}
                 y1={stemTop}
