@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState, useLayoutEffect } from "react";
 import { useChartStore } from "@/lib/store";
 import type { Beat } from "@/lib/schema";
 import { SlashNotation } from "./SlashNotation";
@@ -46,6 +46,26 @@ export function BeatComponent({
   const isSimple = beat.division === "quarter" || beat.division === "eighth";
   const gridMinWidth = isSimple ? undefined : n * slotMinPx;
 
+  // Measure rendered chord widths so the widest chord always fits its equal column.
+  // ChordSymbol uses whitespace-nowrap, so its outer span's offsetWidth is the full
+  // text width regardless of the column constraint it's sitting in.
+  // We expand the entire beat (not individual columns) so equal 1fr columns are
+  // preserved and BeamedSlashGroup notehead percentages stay correct.
+  const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [contentMinWidth, setContentMinWidth] = useState(0);
+  useLayoutEffect(() => {
+    let maxW = 0;
+    for (let i = 0; i < n; i++) {
+      const el = slotRefs.current[i];
+      if (!el) continue;
+      const span = el.querySelector("span") as HTMLElement | null;
+      if (span) maxW = Math.max(maxW, span.offsetWidth);
+    }
+    setContentMinWidth(maxW > 0 ? maxW * n : 0);
+  }, [beat.slots, n]);
+
+  const effectiveMinWidth = Math.max(gridMinWidth ?? 0, contentMinWidth) || undefined;
+
   const notationType = useChartStore.getState().chart.meta.notationType;
 
   return (
@@ -73,13 +93,14 @@ export function BeatComponent({
           style={{
             gridTemplateColumns: `repeat(${n}, 1fr)`,
             gridTemplateRows: "minmax(2rem, auto) 72px",
-            ...(gridMinWidth ? { minWidth: gridMinWidth } : {}),
+            ...(effectiveMinWidth ? { minWidth: effectiveMinWidth } : {}),
           }}
         >
           {/* Row 1 – chord symbols */}
           {beat.slots.map((slot, i) => (
             <div
               key={slot.id}
+              ref={el => { slotRefs.current[i] = el; }}
               style={{ gridRow: 1, gridColumn: i + 1 }}
               className={cn(
                 "beat__chord-slot",
@@ -151,11 +172,12 @@ export function BeatComponent({
         /* Chords-only mode – single equal-column row */
         <div
           className="grid w-full items-center justify-items-center min-h-[72px] px-0.5"
-          style={{ gridTemplateColumns: `repeat(${n}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${n}, 1fr)`, ...(effectiveMinWidth ? { minWidth: effectiveMinWidth } : {}) }}
         >
           {beat.slots.map((slot, i) => (
             <div
               key={slot.id}
+              ref={el => { slotRefs.current[i] = el; }}
               style={{ gridColumn: i + 1 }}
               className={cn(
                 "beat__chord-slot",
