@@ -101,10 +101,10 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
           className="absolute"
           style={{
             left: `${getSlotPct(1)}%`,
-            top: 2,
+            top: 1,
             transform: 'translateX(-50%)',
             fontFamily: 'PetalumaScript',
-            fontSize: 22,
+            fontSize: 11,
             fontWeight: 'bold',
             fontStyle: 'italic',
             lineHeight: 1,
