@@ -235,6 +235,10 @@ export function Toolbar() {
                 value={chordInputValue}
                 onChange={(e) => setChordInputValue(e.target.value)}
                 onKeyDown={(e) => {
+                  if (['.', ',', ';', "'"].includes(e.key)) {
+                    e.preventDefault();
+                    return;
+                  }
                   if (e.key === "Enter") {
                     e.preventDefault();
                     applyChordFromInput();

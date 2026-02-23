@@ -115,6 +115,10 @@ export function ChordInput({
             value={typedValue}
             onChange={(e) => setTypedValue(e.target.value)}
             onKeyDown={(e) => {
+              if (['.', ',', ';', "'"].includes(e.key)) {
+                e.preventDefault();
+                return;
+              }
               if (e.key === "Enter") {
                 e.preventDefault();
                 if (isValid) {
