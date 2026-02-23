@@ -59,7 +59,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 15 + beamHeight / 2;
+  const beam1Y = 16 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 
@@ -255,7 +255,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 15 + beamHeight / 2;
+  const beam1Y = 16 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 
