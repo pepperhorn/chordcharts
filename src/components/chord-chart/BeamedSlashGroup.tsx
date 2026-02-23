@@ -22,7 +22,8 @@ const SLASH_WIDTH = 9;
 const SLASH_STROKE = 2.2;
 
 // Local SVG dimensions for individual noteheads (fixed size, never stretched)
-const NOTE_SVG_WIDTH = SLASH_WIDTH + 8;
+// Wide enough to contain the Petaluma glyph (≈22px at fontSize=60) plus stem clearance
+const NOTE_SVG_WIDTH = 32;
 const NOTE_CENTER_X = NOTE_SVG_WIDTH / 2;
 
 /**
@@ -64,8 +65,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  // Stem connects at the top-right corner of the notehead glyph
-  const stemOffset = SLASH_WIDTH / 2;
+  // Stem-up SE anchor: ~0.73 staff spaces right of notehead centre.
+  // At fontSize=60 → staff space=15px → 11px.  Matches Petaluma SMuFL anchor.
+  const stemOffset = 11;
 
   const belowSlashY = slashBottomY + 6;
   const divisionClass = isEighthTriplet ? 'eighth-triplet' : isSixteenth ? 'sixteenth' : 'eighth';
@@ -258,7 +260,8 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const stemTop = beam1Y - beamHeight / 2;
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  const stemOffset = SLASH_WIDTH / 2;
+  // fontSize=50 → staff space=12.5px → SE anchor ~0.73×12.5 ≈ 9px
+  const stemOffset = 9;
   const belowSlashY = slashBottomY + 4;
 
   return (
