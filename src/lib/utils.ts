@@ -51,10 +51,17 @@ export function createSection(name = "New Section"): Section {
     id: generateId(),
     name,
     timeSignature,
-    measures: [createMeasure(timeSignature)],
+    measures: Array.from({ length: 4 }, () => createMeasure(timeSignature)),
     navigation: null,
     rehearsalMark: null,
   };
+}
+
+/** True when every beat in a measure uses only quarter or eighth divisions (no sub-eighth complexity). */
+export function isMeasureSimple(measure: Measure): boolean {
+  return measure.beats.every(
+    (b) => b.division === "quarter" || b.division === "eighth"
+  );
 }
 
 export function createEmptyChart(): ChordChart {
@@ -99,4 +106,21 @@ export function formatTimeSignature(ts: TimeSignature): string {
 
 export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
+}
+
+// Proportional rhythmic spacing: each beat = 4 sixteenth-note units
+export const RHYTHMIC_BASE_PX = 24; // minimum px per sixteenth-note unit
+
+export function rhythmicSlotMin(division: keyof typeof DIVISIONS): number {
+  const slotCount = DIVISIONS[division].slots;
+  return (4 / slotCount) * RHYTHMIC_BASE_PX;
+}
+
+export function measureMinWidth(measure: Measure): number {
+  // Each beat = 4 sixteenth units × 24px = 96px minimum, plus ~32px for barlines/padding
+  const beatSum = measure.beats.reduce(
+    (sum, beat) => sum + DIVISIONS[beat.division].slots * rhythmicSlotMin(beat.division),
+    0
+  );
+  return beatSum + 32;
 }

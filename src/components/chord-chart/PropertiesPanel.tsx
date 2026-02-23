@@ -2,16 +2,22 @@ import React from "react";
 import { useChartStore } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChordInput } from "./ChordInput";
 import { TIME_SIGNATURES, DIVISIONS, ARTICULATIONS, DYNAMICS } from "@/lib/constants";
+import { PanelLeftClose, PanelLeftOpen, Music, MousePointer2 } from "lucide-react";
 
 export function PropertiesPanel() {
   const { ui, chart, updateMeta, updateSection, updateMeasure, updateBeat, setBeatDivision, updateSlot } =
     useChartStore();
   const { selection } = ui;
+  const [collapsed, setCollapsed] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState("chart");
 
   const selectedSection = selection ? chart.sections.find((s) => s.id === selection.sectionId) : null;
   const selectedMeasure =
@@ -23,13 +29,69 @@ export function PropertiesPanel() {
   const selectedSlot =
     selectedBeat && selection?.slotId ? selectedBeat.slots.find((s) => s.id === selection.slotId) : null;
 
+  if (collapsed) {
+    return (
+      <div className="w-10 border-r bg-muted/50 flex flex-col items-center py-2 gap-1" role="complementary" aria-label="Properties panel (collapsed)">
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed(false)} aria-label="Open properties panel">
+                <PanelLeftOpen className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Open panel</TooltipContent>
+          </Tooltip>
+          <Separator className="w-6 my-1" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={activeTab === "chart" ? "secondary" : "ghost"}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => { setActiveTab("chart"); setCollapsed(false); }}
+                aria-label="Chart properties"
+              >
+                <Music className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Chart</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={activeTab === "selection" ? "secondary" : "ghost"}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => { setActiveTab("selection"); setCollapsed(false); }}
+                aria-label="Selection properties"
+              >
+                <MousePointer2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Selection</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+  }
+
   return (
     <div className="w-72 border-r bg-muted/50 flex flex-col" role="complementary" aria-label="Properties panel">
-      <div className="p-3 border-b">
+      <div className="p-3 border-b flex items-center justify-between">
         <h2 className="font-semibold">Properties</h2>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCollapsed(true)} aria-label="Close properties panel">
+                <PanelLeftClose className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Close panel</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <ScrollArea className="flex-1">
-        <Tabs defaultValue="chart" className="p-3">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="p-3">
           <TabsList className="w-full">
             <TabsTrigger value="chart" className="flex-1">Chart</TabsTrigger>
             <TabsTrigger value="selection" className="flex-1">Selection</TabsTrigger>

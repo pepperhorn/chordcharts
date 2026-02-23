@@ -13,7 +13,6 @@ interface MeasureComponentProps {
   timeSignature: TimeSignature;
   showTimeSignature: boolean;
   isFirstInLine: boolean;
-  isLastInLine: boolean;
 }
 
 export function MeasureComponent(props: MeasureComponentProps) {
@@ -63,7 +62,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
       )}
       <div className="measure__content flex items-stretch flex-1">
         {/* Time signature */}
-        {showTimeSignature && isFirstInLine && (
+        {showTimeSignature && (
           <div className="measure__time-signature flex flex-col">
             {ui.showSlashes && <div className="measure__time-signature-spacer min-h-[2rem]" />}
             <div className={cn("measure__time-signature-display flex min-h-[72px]", ui.showSlashes ? "items-end" : "items-center")}>
@@ -71,7 +70,7 @@ export function MeasureComponent(props: MeasureComponentProps) {
             </div>
           </div>
         )}
-        {/* Start barline */}
+        {/* Start barline: only on wrapped lines that lack a time signature */}
         {isFirstInLine && !showTimeSignature && (
           <div className="measure__barline measure__barline--start flex flex-col">
             {ui.showSlashes && <div className="measure__barline-spacer min-h-[2rem]" />}

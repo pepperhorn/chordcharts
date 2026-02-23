@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   integrations: [react(), tailwind()],
+  devToolbar: { enabled: false },
   vite: {
     resolve: {
       alias: {

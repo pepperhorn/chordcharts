@@ -1,5 +1,5 @@
 import { ChordChartSchema, type ChordChart } from "./schema";
-import { formatChord, getQualitySymbol } from "./utils";
+import { formatChord } from "./utils";
 
 export function exportToJSON(chart: ChordChart): string {
   return JSON.stringify(chart, null, 2);

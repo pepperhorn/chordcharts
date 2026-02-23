@@ -58,14 +58,14 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 26 + beamHeight / 2;
+  const beam1Y = 21 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  // Stem connects at top-right of glyph; glyph at fontSize=60 is ~9px half-width
-  const stemOffset = 9;
+  // Stem connects at the top-right corner of the notehead glyph
+  const stemOffset = SLASH_WIDTH / 2;
 
   const belowSlashY = slashBottomY + 6;
   const divisionClass = isEighthTriplet ? 'eighth-triplet' : isSixteenth ? 'sixteenth' : 'eighth';
@@ -253,12 +253,12 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 26 + beamHeight / 2;
+  const beam1Y = 21 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
   const stemTop = beam1Y - beamHeight / 2;
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
-  const stemOffset = 9;
+  const stemOffset = SLASH_WIDTH / 2;
   const belowSlashY = slashBottomY + 4;
 
   return (

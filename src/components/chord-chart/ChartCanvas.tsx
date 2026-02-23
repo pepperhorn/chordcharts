@@ -1,17 +1,105 @@
 import React from "react";
 import { useChartStore } from "@/lib/store";
+import type { Section } from "@/lib/schema";
 import { MeasureComponent } from "./MeasureComponent";
 import { SectionHeader } from "./SectionHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, measureMinWidth, isMeasureSimple } from "@/lib/utils";
 
 interface ChartCanvasProps {
   className?: string;
 }
 
+/**
+ * Renders the flex-wrapped measures for a single section and detects which
+ * measures visually start a new line, so that only those receive a start barline.
+ * Uses a ResizeObserver on the flex container and compares offsetTop values
+ * (layout-flow positions, unaffected by CSS transform zoom).
+ */
+function SectionMeasures({ section, effectiveN }: { section: Section; effectiveN: number }) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  // Start with the first measure pre-marked; ResizeObserver corrects the rest after layout.
+  const [lineStartIds, setLineStartIds] = React.useState<ReadonlySet<string>>(
+    () => new Set(section.measures.length > 0 ? [section.measures[0].id] : [])
+  );
+
+  React.useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const compute = () => {
+      const children = Array.from(container.children) as HTMLElement[];
+      const starts = new Set<string>();
+      let prevTop = -Infinity;
+      children.forEach((el) => {
+        // offsetTop is layout-flow position — not affected by ancestor CSS transforms.
+        if (el.offsetTop > prevTop + 1) {
+          const id = el.dataset.measureId;
+          if (id) starts.add(id);
+          prevTop = el.offsetTop;
+        }
+      });
+      setLineStartIds((prev) => {
+        if (prev.size === starts.size && [...prev].every((id) => starts.has(id))) return prev;
+        return starts;
+      });
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []); // ResizeObserver handles all layout changes (resize, panel, measure count, effectiveN)
+
+  return (
+    <div ref={containerRef} className="chart-canvas__measures flex flex-wrap gap-1">
+      {section.measures.map((measure, measureIndex) => {
+        const minWidth = isMeasureSimple(measure) ? undefined : measureMinWidth(measure);
+        return (
+          <div
+            key={measure.id}
+            data-measure-id={measure.id}
+            className="chart-canvas__measure-wrapper"
+            style={{
+              flexBasis: `calc(${100 / effectiveN}% - ${(effectiveN - 1) * 4 / effectiveN}px)`,
+              flexGrow: 1,
+              flexShrink: 0,
+              minWidth,
+            }}
+          >
+            <MeasureComponent
+              measure={measure}
+              sectionId={section.id}
+              measureIndex={measureIndex}
+              timeSignature={section.timeSignature}
+              showTimeSignature={measureIndex === 0}
+              isFirstInLine={lineStartIds.has(measure.id)}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Tracks whether the viewport is >= lg (1024px). */
+function useIsLargeViewport() {
+  const [isLarge, setIsLarge] = React.useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handler = (e: MediaQueryListEvent) => setIsLarge(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isLarge;
+}
+
 export function ChartCanvas({ className }: ChartCanvasProps) {
   const { chart, ui, reorderSections } = useChartStore();
   const { measuresPerLine } = chart.meta;
+  const isLarge = useIsLargeViewport();
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
@@ -72,34 +160,10 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
             onDrop={(e) => handleDrop(e, sectionIndex)}
           >
             <SectionHeader section={section} index={sectionIndex} />
-            <div
-              className="chart-canvas__measures flex flex-wrap gap-1"
-            >
-              {section.measures.map((measure, measureIndex) => {
-                const effectiveMeasuresPerLine = Math.min(measuresPerLine, 4);
-                return (
-                  <div
-                    key={measure.id}
-                    className="chart-canvas__measure-wrapper"
-                    style={{
-                      flexBasis: `calc(${100 / effectiveMeasuresPerLine}% - ${(effectiveMeasuresPerLine - 1) * 4 / effectiveMeasuresPerLine}px)`,
-                      flexGrow: 1,
-                      flexShrink: 0,
-                    }}
-                  >
-                    <MeasureComponent
-                      measure={measure}
-                      sectionId={section.id}
-                      measureIndex={measureIndex}
-                      timeSignature={section.timeSignature}
-                      showTimeSignature={measureIndex === 0}
-                      isFirstInLine={measureIndex % measuresPerLine === 0}
-                      isLastInLine={(measureIndex + 1) % measuresPerLine === 0}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            <SectionMeasures
+              section={section}
+              effectiveN={isLarge ? Math.min(measuresPerLine, 4) : 2}
+            />
           </section>
         ))}
       </div>

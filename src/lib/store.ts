@@ -14,7 +14,6 @@ import {
   createEmptyChart,
   createSection,
   createMeasure,
-  createBeat,
   createBeatSlot,
   deepClone,
 } from "./utils";

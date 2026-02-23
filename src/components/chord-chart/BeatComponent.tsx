@@ -4,7 +4,7 @@ import type { Beat } from "@/lib/schema";
 import { SlashNotation } from "./SlashNotation";
 import { BeamedSlashGroup } from "./BeamedSlashGroup";
 import { ChordSymbol } from "./ChordSymbol";
-import { cn } from "@/lib/utils";
+import { cn, rhythmicSlotMin } from "@/lib/utils";
 
 interface BeatComponentProps {
   beat: Beat;
@@ -21,19 +21,19 @@ export function BeatComponent({
 }: BeatComponentProps) {
   const { ui, setSelection } = useChartStore();
   const isSelected = ui.selection?.beatId === beat.id;
+  const n = beat.slots.length;
+  const slotMinPx = rhythmicSlotMin(beat.division);
 
   const handleSlotClick = (e: React.MouseEvent, slotId: string) => {
     e.stopPropagation();
-    setSelection({
-      type: "slot",
-      sectionId,
-      measureId,
-      beatId: beat.id,
-      slotId,
-    });
+    setSelection({ type: "slot", sectionId, measureId, beatId: beat.id, slotId });
   };
 
-  const isBeamed = beat.division !== "quarter" && beat.slots.length > 1;
+  const handleSlotKeyDown = (e: React.KeyboardEvent, slotId: string) => {
+    if (e.key === "Enter" || e.key === " ") handleSlotClick(e as unknown as React.MouseEvent, slotId);
+  };
+
+  const isBeamed = beat.division !== "quarter" && n > 1;
   const slashSize =
     beat.division === "quarter"
       ? "lg"
@@ -41,34 +41,12 @@ export function BeatComponent({
         ? "sm"
         : "md";
 
-  const chordSlots = beat.slots.map((slot, slotIndex) => (
-    <div
-      key={slot.id}
-      className={cn(
-        "beat__chord-slot",
-        "flex justify-center cursor-pointer px-1",
-        ui.showSlashes ? "items-end py-0.5" : "items-center py-1",
-        "hover:bg-muted/50 transition-colors",
-        ui.selection?.slotId === slot.id && "beat__chord-slot--selected bg-[#c3eff7]"
-      )}
-      onClick={(e) => handleSlotClick(e, slot.id)}
-      tabIndex={0}
-      role="button"
-      aria-label={`Slot ${slotIndex + 1}: ${slot.chord ? `${slot.chord.root} ${slot.chord.quality}` : "empty"}`}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") handleSlotClick(e as unknown as React.MouseEvent, slot.id);
-      }}
-    >
-      {(slot.chord || slot.nashvilleChord) && (
-        <ChordSymbol
-          chord={slot.chord}
-          nashvilleChord={slot.nashvilleChord}
-          notationType={useChartStore.getState().chart.meta.notationType}
-          className={ui.showSlashes ? undefined : "text-xl"}
-        />
-      )}
-    </div>
-  ));
+  // Only enforce proportional minimum width for sub-eighth divisions.
+  // Quarter/eighth beats rely on natural flex sizing so 4/line remains achievable.
+  const isSimple = beat.division === "quarter" || beat.division === "eighth";
+  const gridMinWidth = isSimple ? undefined : n * slotMinPx;
+
+  const notationType = useChartStore.getState().chart.meta.notationType;
 
   return (
     <div
@@ -82,66 +60,125 @@ export function BeatComponent({
       aria-label={`Beat ${beatIndex + 1}, ${beat.division} division`}
     >
       {ui.showSlashes ? (
-        <>
-          {/* Chord row - grid auto-sizes to fit chord content */}
-          <div
-            className="beat__chord-row grid w-full items-end justify-items-center min-h-[2rem] px-0.5 pb-0.5"
-            style={{ gridTemplateColumns: `repeat(${beat.slots.length}, minmax(min-content, 1fr))` }}
-          >
-            {chordSlots}
-          </div>
-          {/* Rhythm row - uses same grid as chord row for alignment */}
-          <div
-            className="beat__rhythm-row grid w-full items-center justify-items-center min-h-[72px] flex-shrink-0"
-            style={{ gridTemplateColumns: `repeat(${beat.slots.length}, minmax(min-content, 1fr))` }}
-          >
-            {!isBeamed && beat.slots.map((slot) => (
-              <div
-                key={slot.id}
-                className={cn(
-                  "beat__rhythm-slot",
-                  "flex items-center justify-center cursor-pointer p-0.5",
-                  "hover:bg-muted/50 transition-colors",
-                  ui.selection?.slotId === slot.id && "beat__rhythm-slot--selected bg-[#c3eff7]"
-                )}
-                onClick={(e) => handleSlotClick(e, slot.id)}
-                tabIndex={0}
-                role="button"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") handleSlotClick(e as unknown as React.MouseEvent, slot.id);
-                }}
-              >
-                {!slot.slash.rest ? (
-                  <SlashNotation
-                    articulation={slot.slash.articulation}
-                    tied={slot.slash.tied}
-                    size={slashSize}
-                  />
-                ) : (
-                  <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
-                    𝄽
-                  </span>
-                )}
-              </div>
-            ))}
-            {isBeamed && (
-              <div className="beat__beamed-container w-full" style={{ gridColumn: `1 / -1`, justifySelf: 'stretch' }}>
-                <BeamedSlashGroup
-                  slots={beat.slots.map((s) => s.slash)}
-                  size={slashSize === "sm" ? "sm" : "md"}
-                  selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
-                />
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        /* Chords-only mode: single centered row replacing both chord + rhythm rows */
+        /*
+         * Single grid – chord cells in row 1, rhythm cells in row 2.
+         * Using plain 1fr columns so every column is always equal-width.
+         * BeamedSlashGroup positions noteheads at (i+0.5)/n × 100%, which
+         * matches the centre of each 1fr column exactly.
+         * Every cell has an explicit gridRow + gridColumn to avoid any
+         * auto-placement ambiguity.
+         */
         <div
-          className="beat__chord-row beat__chord-row--chords-only grid w-full items-center justify-items-center min-h-[72px] px-0.5"
-          style={{ gridTemplateColumns: `repeat(${beat.slots.length}, minmax(min-content, 1fr))` }}
+          className="beat__grid grid w-full"
+          style={{
+            gridTemplateColumns: `repeat(${n}, 1fr)`,
+            gridTemplateRows: "minmax(2rem, auto) 72px",
+            ...(gridMinWidth ? { minWidth: gridMinWidth } : {}),
+          }}
         >
-          {chordSlots}
+          {/* Row 1 – chord symbols */}
+          {beat.slots.map((slot, i) => (
+            <div
+              key={slot.id}
+              style={{ gridRow: 1, gridColumn: i + 1 }}
+              className={cn(
+                "beat__chord-slot",
+                "flex justify-center items-end cursor-pointer px-1 py-0.5",
+                "hover:bg-muted/50 transition-colors",
+                ui.selection?.slotId === slot.id && "beat__chord-slot--selected bg-[#c3eff7]"
+              )}
+              onClick={(e) => handleSlotClick(e, slot.id)}
+              tabIndex={0}
+              role="button"
+              aria-label={`Slot ${i + 1}: ${slot.chord ? `${slot.chord.root} ${slot.chord.quality}` : "empty"}`}
+              onKeyDown={(e) => handleSlotKeyDown(e, slot.id)}
+            >
+              {(slot.chord || slot.nashvilleChord) && (
+                <ChordSymbol
+                  chord={slot.chord}
+                  nashvilleChord={slot.nashvilleChord}
+                  notationType={notationType}
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Row 2 – individual slash noteheads (non-beamed) */}
+          {!isBeamed && beat.slots.map((slot, i) => (
+            <div
+              key={`r-${slot.id}`}
+              style={{ gridRow: 2, gridColumn: i + 1 }}
+              className={cn(
+                "beat__rhythm-slot",
+                "flex items-center justify-center cursor-pointer p-0.5",
+                "hover:bg-muted/50 transition-colors",
+                ui.selection?.slotId === slot.id && "beat__rhythm-slot--selected bg-[#c3eff7]"
+              )}
+              onClick={(e) => handleSlotClick(e, slot.id)}
+              tabIndex={0}
+              role="button"
+              onKeyDown={(e) => handleSlotKeyDown(e, slot.id)}
+            >
+              {!slot.slash.rest ? (
+                <SlashNotation
+                  articulation={slot.slash.articulation}
+                  tied={slot.slash.tied}
+                  size={slashSize}
+                />
+              ) : (
+                <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
+                  𝄽
+                </span>
+              )}
+            </div>
+          ))}
+
+          {/* Row 2 – beamed group spanning all columns */}
+          {isBeamed && (
+            <div
+              style={{ gridRow: 2, gridColumn: "1 / -1" }}
+              className="w-full"
+            >
+              <BeamedSlashGroup
+                slots={beat.slots.map((s) => s.slash)}
+                size={slashSize === "sm" ? "sm" : "md"}
+                selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Chords-only mode – single equal-column row */
+        <div
+          className="grid w-full items-center justify-items-center min-h-[72px] px-0.5"
+          style={{ gridTemplateColumns: `repeat(${n}, 1fr)` }}
+        >
+          {beat.slots.map((slot, i) => (
+            <div
+              key={slot.id}
+              style={{ gridColumn: i + 1 }}
+              className={cn(
+                "beat__chord-slot",
+                "flex justify-center items-center cursor-pointer px-1 py-1",
+                "hover:bg-muted/50 transition-colors",
+                ui.selection?.slotId === slot.id && "beat__chord-slot--selected bg-[#c3eff7]"
+              )}
+              onClick={(e) => handleSlotClick(e, slot.id)}
+              tabIndex={0}
+              role="button"
+              aria-label={`Slot ${i + 1}: ${slot.chord ? `${slot.chord.root} ${slot.chord.quality}` : "empty"}`}
+              onKeyDown={(e) => handleSlotKeyDown(e, slot.id)}
+            >
+              {(slot.chord || slot.nashvilleChord) && (
+                <ChordSymbol
+                  chord={slot.chord}
+                  nashvilleChord={slot.nashvilleChord}
+                  notationType={notationType}
+                  className="text-xl"
+                />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
