@@ -98,7 +98,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
       {/* Triplet indicator for eighth triplets */}
       {isEighthTriplet && (
         <span
-          className="absolute"
+          className="beamed-slash-group__triplet-indicator absolute"
           style={{
             left: `${getSlotPct(1)}%`,
             top: 1,
@@ -289,7 +289,7 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
 
       {/* Triplet "3" indicator */}
       <span
-        className="absolute"
+        className="sixteenth-triplet-group__triplet-indicator absolute"
         style={{
           left: `${getSlotPct(1)}%`,
           top: 1,
