@@ -41,7 +41,7 @@ export function ChordSymbol({
         aria-label={`Chord: ${formattedChord}`}
       >
         {primary}
-        <span className="text-base">{extensions}</span>
+        <span className="text-base align-top">{extensions}</span>
         {bass}
       </span>
     );
