@@ -81,9 +81,12 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
         }
       }
 
-      // . , ; ' — articulation shortcuts (slot must be selected, not in any input)
+      // . , ; ' — articulation shortcuts (slot must be selected, not in a generic input)
+      // isChordInput is excluded from the guard: the toolbar chord input auto-focuses on slot
+      // selection, so these keys arrive there. They are already filtered from the input itself
+      // (e.preventDefault in onKeyDown) so it is safe to apply the articulation anyway.
       const articulation = ARTICULATION_KEYS[e.key];
-      if (articulation && !isOtherInput && !isChordInput) {
+      if (articulation && !isOtherInput) {
         const { ui: currentUi, chart: currentChart } = useChartStore.getState();
         const sel = currentUi.selection;
         if (sel?.sectionId && sel.measureId && sel.beatId && sel.slotId) {
