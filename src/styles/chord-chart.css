@@ -1,5 +1,13 @@
 /* Chord Chart Editor Styles */
 
+/* Font-family utilities – declared here so they're always present
+   regardless of Tailwind JIT scanning */
+.font-petaluma {
+  font-family: "Petaluma", system-ui, sans-serif;
+}
+.font-petaluma-text {
+  font-family: "PetalumaText", system-ui, sans-serif;
+}
 
 :root,
 [data-theme="light"] {
