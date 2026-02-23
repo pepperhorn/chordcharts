@@ -59,9 +59,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 16 + beamHeight / 2;
+  const beam1Y = 15 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  const stemTop = beam1Y - beamHeight / 2;
+  const stemTop = 16; // stem starts 1px below beam top for a clean cap
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
@@ -255,9 +255,9 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 16 + beamHeight / 2;
+  const beam1Y = 15 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  const stemTop = beam1Y - beamHeight / 2;
+  const stemTop = 16; // stem starts 1px below beam top for a clean cap
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
   // fontSize=50 → staff space=12.5px → SE anchor ~0.73×12.5 ≈ 9px
