@@ -34,7 +34,23 @@ export const ARTICULATIONS = [
   "staccato",
   "marcato",
   "legato",
+  "staccato-marcato",
+  "staccato-accent",
+  "legato-marcato",
+  "legato-accent",
 ] as const;
+
+export const ARTICULATION_LABELS: Record<string, string> = {
+  none: "None",
+  accent: "Accent",
+  staccato: "Staccato",
+  marcato: "Marcato",
+  legato: "Legato",
+  "staccato-marcato": "Staccato + Marcato",
+  "staccato-accent": "Staccato + Accent",
+  "legato-marcato": "Legato + Marcato",
+  "legato-accent": "Legato + Accent",
+};
 
 // Dynamic markings
 export const DYNAMICS = [

@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SlashNotationProps {
-  articulation: "none" | "accent" | "staccato" | "marcato" | "legato";
+  articulation: string;
   tied?: boolean;
   size?: "sm" | "md" | "lg";
 }
@@ -14,6 +14,9 @@ const SLASH_CENTER_Y = 50; // Positioned to align with beamed notation
 const SLASH_HEIGHT = 14;
 const SLASH_WIDTH = 9;
 const SLASH_STROKE = 2.2;
+
+// 75% of notehead height — the target size for accent, marcato, and legato marks
+const ARTIC_HALF = (SLASH_HEIGHT * 0.75) / 2; // 5.25px (marks span 10.5px total)
 
 const sizeMap = {
   sm: { width: 22, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
@@ -41,9 +44,22 @@ export function SlashNotation({
   const slashY2 = slashCenterY - glyphHalfH; // estimated notehead top
   const slashY1 = slashCenterY + glyphHalfH; // estimated notehead bottom
 
-  // Articulation positions
+  // Above mark center (accent, marcato) — clear of notehead top
   const aboveSlashY = slashY2 - 8;
+  // Below mark position (staccato, legato) — clear of notehead bottom
   const belowSlashY = slashY1 + 5;
+
+  // Decode compound articulation using string inclusion
+  const hasStaccato = articulation.includes("staccato");
+  const hasLegato   = articulation.includes("legato");
+  const hasMarcato  = articulation.includes("marcato");
+  const hasAccent   = articulation.includes("accent");
+
+  const cx = width / 2;
+
+  const articulationLabel = articulation === "none"
+    ? ""
+    : articulation.replace(/-/g, " and ");
 
   return (
     <svg
@@ -54,13 +70,13 @@ export function SlashNotation({
       overflow="visible"
       style={{ display: 'block' }}
       role="img"
-      aria-label={`Rhythm slash${articulation !== "none" ? ` with ${articulation}` : ""}${tied ? ", tied" : ""}`}
+      aria-label={`Rhythm slash${articulationLabel ? ` with ${articulationLabel}` : ""}${tied ? ", tied" : ""}`}
     >
       {/* Slash notehead – SMuFL noteheadSlashVerticalEnds U+E100
           Petaluma baseline = notehead center (middle staff line),
           so y={slashCenterY} positions the notehead center correctly. */}
       <text
-        x={width / 2}
+        x={cx}
         y={slashCenterY}
         textAnchor="middle"
         fontFamily="Petaluma"
@@ -75,10 +91,13 @@ export function SlashNotation({
           strokeWidth={strokeW}
         />
       )}
-      {/* Accent: horizontal > above the slash */}
-      {articulation === "accent" && (
+
+      {/* === ABOVE MARKS === */}
+
+      {/* Accent: > pointing right, centered at aboveSlashY, 75% of notehead height */}
+      {hasAccent && (
         <path
-          d={`M ${width * 0.1} ${aboveSlashY - 3.5} L ${width * 0.9} ${aboveSlashY} L ${width * 0.1} ${aboveSlashY + 3.5}`}
+          d={`M ${cx - ARTIC_HALF} ${aboveSlashY - ARTIC_HALF} L ${cx + ARTIC_HALF} ${aboveSlashY} L ${cx - ARTIC_HALF} ${aboveSlashY + ARTIC_HALF}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeW}
@@ -86,14 +105,11 @@ export function SlashNotation({
           strokeLinejoin="round"
         />
       )}
-      {/* Staccato: dot above */}
-      {articulation === "staccato" && (
-        <circle cx={width / 2} cy={aboveSlashY} r={dotR} fill="currentColor" />
-      )}
-      {/* Marcato: tall narrow ^ always above */}
-      {articulation === "marcato" && (
+
+      {/* Marcato: ^ pointing up, centered at aboveSlashY, 75% of notehead height */}
+      {hasMarcato && (
         <path
-          d={`M ${width * 0.15} ${aboveSlashY + 4} L ${width * 0.5} ${aboveSlashY - 5} L ${width * 0.85} ${aboveSlashY + 4}`}
+          d={`M ${cx - ARTIC_HALF} ${aboveSlashY + ARTIC_HALF} L ${cx} ${aboveSlashY - ARTIC_HALF} L ${cx + ARTIC_HALF} ${aboveSlashY + ARTIC_HALF}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeW}
@@ -101,12 +117,20 @@ export function SlashNotation({
           strokeLinejoin="round"
         />
       )}
-      {/* Legato: horizontal bar below the slash */}
-      {articulation === "legato" && (
+
+      {/* === BELOW MARKS === */}
+
+      {/* Staccato: dot below the notehead */}
+      {hasStaccato && (
+        <circle cx={cx} cy={belowSlashY} r={dotR} fill="currentColor" />
+      )}
+
+      {/* Legato (tenuto): horizontal bar below the notehead, 75% of notehead height wide */}
+      {hasLegato && (
         <line
-          x1={width * 0.1}
+          x1={cx - ARTIC_HALF}
           y1={belowSlashY}
-          x2={width * 0.9}
+          x2={cx + ARTIC_HALF}
           y2={belowSlashY}
           stroke="currentColor"
           strokeWidth={strokeW}

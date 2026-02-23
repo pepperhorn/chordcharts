@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SlotSlash {
-  articulation: "none" | "accent" | "staccato" | "marcato" | "legato";
+  articulation: string;
   tied: boolean;
   rest: boolean;
 }
@@ -25,6 +25,12 @@ const SLASH_STROKE = 2.2;
 // Wide enough to contain the Petaluma glyph (≈22px at fontSize=60) plus stem clearance
 const NOTE_SVG_WIDTH = 32;
 const NOTE_CENTER_X = NOTE_SVG_WIDTH / 2;
+
+// 75% of notehead height — target size for accent, marcato, and legato marks.
+// ARTIC_HALF is the ± offset from mark centre (marks span 10.5px total).
+// ARTIC_HALF_W is the horizontal half-span (matches notehead width).
+const ARTIC_HALF = (SLASH_HEIGHT * 0.75) / 2;   // 5.25
+const ARTIC_HALF_W = SLASH_WIDTH / 2;             // 4.5
 
 /**
  * Renders standard slash notation with stems and beams.
@@ -198,44 +204,59 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
                 fontSize={60}
                 fill="currentColor"
               >{'\uE100'}</text>
-              {/* Accent: horizontal > below the slash */}
-              {slot.articulation === "accent" && (
-                <path
-                  d={`M ${NOTE_CENTER_X - 4} ${belowSlashY} L ${NOTE_CENTER_X + 4} ${belowSlashY + 2} L ${NOTE_CENTER_X - 4} ${belowSlashY + 4}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={size === "sm" ? 1.2 : 1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-              {/* Staccato: dot below */}
-              {slot.articulation === "staccato" && (
-                <circle cx={NOTE_CENTER_X} cy={belowSlashY + 2} r={size === "sm" ? 1.5 : 2} fill="currentColor" />
-              )}
-              {/* Marcato: tall narrow ^ always above the beam */}
-              {slot.articulation === "marcato" && (
-                <path
-                  d={`M ${NOTE_CENTER_X - 3} ${stemTop + 2} L ${NOTE_CENTER_X} ${stemTop - 5} L ${NOTE_CENTER_X + 3} ${stemTop + 2}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={size === "sm" ? 1.2 : 1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-              {/* Legato: horizontal bar below the slash */}
-              {slot.articulation === "legato" && (
-                <line
-                  x1={NOTE_CENTER_X - 4.5}
-                  y1={belowSlashY + 2}
-                  x2={NOTE_CENTER_X + 4.5}
-                  y2={belowSlashY + 2}
-                  stroke="currentColor"
-                  strokeWidth={size === "sm" ? 1.2 : 1.5}
-                  strokeLinecap="round"
-                />
-              )}
+              {/* Articulation marks — decode compound via string inclusion */}
+              {(() => {
+                const a = slot.articulation;
+                const hasStaccato = a.includes("staccato");
+                const hasLegato   = a.includes("legato");
+                const hasMarcato  = a.includes("marcato");
+                const hasAccent   = a.includes("accent");
+                // Above mark centre: just above the primary beam
+                const aboveCY = (beam1Y - beamHeight / 2) - ARTIC_HALF;
+                const sw = size === "sm" ? 1.4 : 1.7;
+                return (
+                  <>
+                    {/* Accent: > pointing right, above beam */}
+                    {hasAccent && (
+                      <path
+                        d={`M ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY - ARTIC_HALF} L ${NOTE_CENTER_X + ARTIC_HALF_W} ${aboveCY} L ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY + ARTIC_HALF}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={sw}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                    {/* Marcato: ^ pointing up, above beam */}
+                    {hasMarcato && (
+                      <path
+                        d={`M ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY + ARTIC_HALF} L ${NOTE_CENTER_X} ${aboveCY - ARTIC_HALF} L ${NOTE_CENTER_X + ARTIC_HALF_W} ${aboveCY + ARTIC_HALF}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={sw}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                    {/* Staccato: dot below notehead */}
+                    {hasStaccato && (
+                      <circle cx={NOTE_CENTER_X} cy={belowSlashY + 2} r={size === "sm" ? 1.5 : 2} fill="currentColor" />
+                    )}
+                    {/* Legato (tenuto): bar below notehead, 75% of notehead height wide */}
+                    {hasLegato && (
+                      <line
+                        x1={NOTE_CENTER_X - ARTIC_HALF}
+                        y1={belowSlashY + 2}
+                        x2={NOTE_CENTER_X + ARTIC_HALF}
+                        y2={belowSlashY + 2}
+                        stroke="currentColor"
+                        strokeWidth={sw}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </>
+                );
+              })()}
             </svg>
           </div>
         );
@@ -383,44 +404,58 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
                 fontSize={50}
                 fill="currentColor"
               >{'\uE100'}</text>
-              {/* Accent: horizontal > below */}
-              {slot.articulation === "accent" && (
-                <path
-                  d={`M ${NOTE_CENTER_X - 3} ${belowSlashY} L ${NOTE_CENTER_X + 3} ${belowSlashY + 3} L ${NOTE_CENTER_X - 3} ${belowSlashY + 6}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-              {/* Staccato: dot below */}
-              {slot.articulation === "staccato" && (
-                <circle cx={NOTE_CENTER_X} cy={belowSlashY + 1.5} r={1.2} fill="currentColor" />
-              )}
-              {/* Marcato: tall narrow ^ always above the beam */}
-              {slot.articulation === "marcato" && (
-                <path
-                  d={`M ${NOTE_CENTER_X - 3} ${stemTop + 2} L ${NOTE_CENTER_X} ${stemTop - 5} L ${NOTE_CENTER_X + 3} ${stemTop + 2}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-              {/* Legato: horizontal bar below */}
-              {slot.articulation === "legato" && (
-                <line
-                  x1={NOTE_CENTER_X - 3.5}
-                  y1={belowSlashY + 2}
-                  x2={NOTE_CENTER_X + 3.5}
-                  y2={belowSlashY + 2}
-                  stroke="currentColor"
-                  strokeWidth={1.2}
-                  strokeLinecap="round"
-                />
-              )}
+              {/* Articulation marks — decode compound via string inclusion */}
+              {(() => {
+                const a = slot.articulation;
+                const hasStaccato = a.includes("staccato");
+                const hasLegato   = a.includes("legato");
+                const hasMarcato  = a.includes("marcato");
+                const hasAccent   = a.includes("accent");
+                // Above mark centre: just above the primary beam
+                const aboveCY = (beam1Y - beamHeight / 2) - ARTIC_HALF;
+                return (
+                  <>
+                    {/* Accent: > pointing right, above beam */}
+                    {hasAccent && (
+                      <path
+                        d={`M ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY - ARTIC_HALF} L ${NOTE_CENTER_X + ARTIC_HALF_W} ${aboveCY} L ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY + ARTIC_HALF}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                    {/* Marcato: ^ pointing up, above beam */}
+                    {hasMarcato && (
+                      <path
+                        d={`M ${NOTE_CENTER_X - ARTIC_HALF_W} ${aboveCY + ARTIC_HALF} L ${NOTE_CENTER_X} ${aboveCY - ARTIC_HALF} L ${NOTE_CENTER_X + ARTIC_HALF_W} ${aboveCY + ARTIC_HALF}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                    {/* Staccato: dot below notehead */}
+                    {hasStaccato && (
+                      <circle cx={NOTE_CENTER_X} cy={belowSlashY + 1.5} r={1.5} fill="currentColor" />
+                    )}
+                    {/* Legato (tenuto): bar below notehead, 75% of notehead height wide */}
+                    {hasLegato && (
+                      <line
+                        x1={NOTE_CENTER_X - ARTIC_HALF}
+                        y1={belowSlashY + 2}
+                        x2={NOTE_CENTER_X + ARTIC_HALF}
+                        y2={belowSlashY + 2}
+                        stroke="currentColor"
+                        strokeWidth={1.4}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </>
+                );
+              })()}
             </svg>
           </div>
         );

@@ -1,13 +1,14 @@
 import React from "react";
 import { useChartStore } from "@/lib/store";
 import { parseChord } from "@/lib/chordParser";
+import type { Slash } from "@/lib/schema";
 import { formatChord } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ARTICULATIONS, CHORD_QUALITIES } from "@/lib/constants";
+import { ARTICULATIONS, ARTICULATION_LABELS, CHORD_QUALITIES } from "@/lib/constants";
 import {
   Undo2,
   Redo2,
@@ -252,9 +253,9 @@ export function Toolbar() {
               <span className="toolbar__articulation-label text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
               <Select
                 value={selectedSlot.slash.articulation}
-                onValueChange={(v: "none" | "accent" | "staccato" | "marcato" | "legato") =>
+                onValueChange={(v) =>
                   updateSlot(selection.sectionId!, selection.measureId!, selection.beatId!, selectedSlot.id, {
-                    slash: { ...selectedSlot.slash, articulation: v },
+                    slash: { ...selectedSlot.slash, articulation: v as Slash["articulation"] },
                   })
                 }
               >
@@ -264,7 +265,7 @@ export function Toolbar() {
                 <SelectContent>
                   {ARTICULATIONS.map((a) => (
                     <SelectItem key={a} value={a}>
-                      {a === "none" ? "None" : a.charAt(0).toUpperCase() + a.slice(1)}
+                      {ARTICULATION_LABELS[a] ?? a}
                     </SelectItem>
                   ))}
                 </SelectContent>

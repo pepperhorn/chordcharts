@@ -17,7 +17,11 @@ export const NashvilleChordSchema = z.object({
 
 // Slash notation (rhythm) schema
 export const SlashSchema = z.object({
-  articulation: z.enum(["none", "accent", "staccato", "marcato", "legato"]).default("none"),
+  articulation: z.enum([
+    "none", "accent", "staccato", "marcato", "legato",
+    "staccato-marcato", "staccato-accent",
+    "legato-marcato", "legato-accent",
+  ]).default("none"),
   tied: z.boolean().default(false),
   rest: z.boolean().default(false),
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { useChartStore } from "@/lib/store";
 import { useKeyboardNavigation } from "@/lib/useKeyboardNavigation";
 import { DIVISIONS } from "@/lib/constants";
+import type { Slash } from "@/lib/schema";
 import { Toolbar } from "./Toolbar";
 import { ChartCanvas } from "./ChartCanvas";
 import { PropertiesPanel } from "./PropertiesPanel";
@@ -21,6 +22,39 @@ const ARTICULATION_KEYS: Record<string, "staccato" | "marcato" | "accent" | "leg
   ";": "accent",
   "'": "legato",
 };
+
+/**
+ * Toggles a single articulation component on/off within the compound value.
+ * Below marks: staccato | legato (mutually exclusive — never both).
+ * Above marks: marcato | accent (mutually exclusive).
+ * Pressing a mark that conflicts with the current below mark replaces it.
+ */
+function toggleArticulation(
+  current: string,
+  key: "staccato" | "marcato" | "accent" | "legato",
+): Slash["articulation"] {
+  let below: "staccato" | "legato" | null =
+    current.includes("staccato") ? "staccato" : current.includes("legato") ? "legato" : null;
+  let above: "marcato" | "accent" | null =
+    current.includes("marcato") ? "marcato" : current.includes("accent") ? "accent" : null;
+
+  switch (key) {
+    case "staccato": below = below === "staccato" ? null : "staccato"; break;
+    case "legato":   below = below === "legato"   ? null : "legato";   break;
+    case "marcato":  above = above === "marcato"  ? null : "marcato";  break;
+    case "accent":   above = above === "accent"   ? null : "accent";   break;
+  }
+
+  if (below === "staccato" && above === "marcato") return "staccato-marcato";
+  if (below === "staccato" && above === "accent")  return "staccato-accent";
+  if (below === "legato"   && above === "marcato") return "legato-marcato";
+  if (below === "legato"   && above === "accent")  return "legato-accent";
+  if (below === "staccato") return "staccato";
+  if (below === "legato")   return "legato";
+  if (above === "marcato")  return "marcato";
+  if (above === "accent")   return "accent";
+  return "none";
+}
 
 interface ChordChartEditorProps {
   className?: string;
@@ -85,8 +119,8 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
       // isChordInput is excluded from the guard: the toolbar chord input auto-focuses on slot
       // selection, so these keys arrive there. They are already filtered from the input itself
       // (e.preventDefault in onKeyDown) so it is safe to apply the articulation anyway.
-      const articulation = ARTICULATION_KEYS[e.key];
-      if (articulation && !isOtherInput) {
+      const articulationKey = ARTICULATION_KEYS[e.key];
+      if (articulationKey && !isOtherInput) {
         const { ui: currentUi, chart: currentChart } = useChartStore.getState();
         const sel = currentUi.selection;
         if (sel?.sectionId && sel.measureId && sel.beatId && sel.slotId) {
@@ -97,7 +131,7 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
           const slot = beat?.slots.find((s) => s.id === sel.slotId);
           if (slot) {
             updateSlot(sel.sectionId, sel.measureId, sel.beatId, sel.slotId, {
-              slash: { ...slot.slash, articulation },
+              slash: { ...slot.slash, articulation: toggleArticulation(slot.slash.articulation, articulationKey) },
             });
           }
         }

@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChordInput } from "./ChordInput";
-import { TIME_SIGNATURES, DIVISIONS, ARTICULATIONS, DYNAMICS } from "@/lib/constants";
+import type { Slash } from "@/lib/schema";
+import { TIME_SIGNATURES, DIVISIONS, ARTICULATIONS, ARTICULATION_LABELS, DYNAMICS } from "@/lib/constants";
 import { PanelLeftClose, PanelLeftOpen, Music, MousePointer2, Keyboard } from "lucide-react";
 
 export function PropertiesPanel() {
@@ -81,10 +82,10 @@ export function PropertiesPanel() {
               <p className="text-xs font-semibold mb-2">Keyboard Shortcuts</p>
               <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
                 <kbd className="font-mono bg-muted px-1 rounded">1–5</kbd><span>Beat division</span>
-                <kbd className="font-mono bg-muted px-1 rounded">.</kbd><span>Staccato</span>
-                <kbd className="font-mono bg-muted px-1 rounded">,</kbd><span>Marcato</span>
-                <kbd className="font-mono bg-muted px-1 rounded">;</kbd><span>Accent</span>
-                <kbd className="font-mono bg-muted px-1 rounded">'</kbd><span>Legato</span>
+                <kbd className="font-mono bg-muted px-1 rounded">.</kbd><span>Staccato (toggle)</span>
+                <kbd className="font-mono bg-muted px-1 rounded">,</kbd><span>Marcato (toggle)</span>
+                <kbd className="font-mono bg-muted px-1 rounded">;</kbd><span>Accent (toggle)</span>
+                <kbd className="font-mono bg-muted px-1 rounded">'</kbd><span>Legato (toggle)</span>
                 <kbd className="font-mono bg-muted px-1 rounded">⌘Z</kbd><span>Undo</span>
                 <kbd className="font-mono bg-muted px-1 rounded">⌘Y</kbd><span>Redo</span>
                 <kbd className="font-mono bg-muted px-1 rounded">Esc</kbd><span>Deselect</span>
@@ -267,10 +268,10 @@ export function PropertiesPanel() {
                 </div>
                 <div className="space-y-2">
                   <Label>Articulation</Label>
-                  <Select value={selectedSlot.slash.articulation} onValueChange={(v: "none" | "accent" | "staccato" | "marcato" | "legato") => updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, { slash: { ...selectedSlot.slash, articulation: v } })}>
+                  <Select value={selectedSlot.slash.articulation} onValueChange={(v) => updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, { slash: { ...selectedSlot.slash, articulation: v as Slash["articulation"] } })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {ARTICULATIONS.map((a) => <SelectItem key={a} value={a}>{a.charAt(0).toUpperCase() + a.slice(1)}</SelectItem>)}
+                      {ARTICULATIONS.map((a) => <SelectItem key={a} value={a}>{ARTICULATION_LABELS[a] ?? a}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
