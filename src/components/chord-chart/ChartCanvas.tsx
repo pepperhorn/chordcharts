@@ -82,25 +82,30 @@ function SectionMeasures({ section, effectiveN }: { section: Section; effectiveN
   );
 }
 
-/** Tracks whether the viewport is >= lg (1024px). */
-function useIsLargeViewport() {
-  const [isLarge, setIsLarge] = React.useState(
-    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
-  );
-  React.useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const handler = (e: MediaQueryListEvent) => setIsLarge(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isLarge;
-}
-
 export function ChartCanvas({ className }: ChartCanvasProps) {
   const { chart, ui, reorderSections } = useChartStore();
   const { measuresPerLine } = chart.meta;
-  const isLarge = useIsLargeViewport();
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+
+  // Measure the actual canvas content width so effectiveN accounts for sidebar
+  // width, browser zoom, and padding — rather than a fixed viewport breakpoint.
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+  const [canvasWidth, setCanvasWidth] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(entries => {
+      setCanvasWidth(entries[0]?.contentRect.width ?? 0);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // ~175px per measure is comfortable for a simple 4-beat quarter-note bar.
+  const MEASURE_MIN_PX = 175;
+  const effectiveN = canvasWidth > 0
+    ? Math.min(measuresPerLine, Math.max(1, Math.floor(canvasWidth / MEASURE_MIN_PX)))
+    : 2;
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
   const handleDragStart = (e: React.DragEvent, sectionIndex: number) => {
@@ -138,6 +143,7 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
   return (
     <ScrollArea className={cn("flex-1 p-4", className)}>
       <div
+        ref={canvasRef}
         className="space-y-8 w-full min-w-0"
         style={{ transform: `scale(${ui.zoom / 100})`, transformOrigin: "top left" }}
         role="region"
@@ -162,7 +168,7 @@ export function ChartCanvas({ className }: ChartCanvasProps) {
             <SectionHeader section={section} index={sectionIndex} />
             <SectionMeasures
               section={section}
-              effectiveN={isLarge ? Math.min(measuresPerLine, 4) : 2}
+              effectiveN={effectiveN}
             />
           </section>
         ))}
