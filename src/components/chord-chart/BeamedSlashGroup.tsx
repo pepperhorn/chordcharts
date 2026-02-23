@@ -100,7 +100,7 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
         <span
           className="beamed-slash-group__triplet-indicator absolute"
           style={{
-            left: `calc(50% + 14px)`,
+            left: `calc(50% + 10px)`,
             top: 1,
             transform: 'translateX(-50%)',
             fontFamily: 'PetalumaScript',
