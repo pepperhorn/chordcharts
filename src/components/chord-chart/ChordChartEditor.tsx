@@ -15,13 +15,20 @@ const DIVISION_KEYS: Record<string, keyof typeof DIVISIONS> = {
   "5": "sixteenthTriplet",
 };
 
+const ARTICULATION_KEYS: Record<string, "staccato" | "marcato" | "accent" | "legato"> = {
+  ".": "staccato",
+  ",": "marcato",
+  ";": "accent",
+  "'": "legato",
+};
+
 interface ChordChartEditorProps {
   className?: string;
   initialChart?: string;
 }
 
 export function ChordChartEditor({ className, initialChart }: ChordChartEditorProps) {
-  const { importJSON, setSelection, ui, undo, redo, setBeatDivision } = useChartStore();
+  const { importJSON, setSelection, ui, undo, redo, setBeatDivision, updateSlot } = useChartStore();
 
   // Enable arrow key navigation through chart elements
   useKeyboardNavigation();
@@ -46,13 +53,13 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
       }
       if (e.key === "Escape") setSelection(null);
 
+      const target = e.target as HTMLElement | null;
+      const isChordInput = target?.getAttribute?.("data-toolbar-chord-input") != null;
+      const isOtherInput = !isChordInput && target && "closest" in target && (target as Element).closest?.("input, textarea, [contenteditable=true]");
+
       // 1–5: subdivision when no letter has been typed; otherwise chord input (e.g. A5, Bm7#5)
       const division = DIVISION_KEYS[e.key];
       if (division) {
-        const target = e.target as HTMLElement | null;
-        const isChordInput = target?.getAttribute?.("data-toolbar-chord-input") != null;
-        const isOtherInput = target && "closest" in target && (target as Element).closest?.("input, textarea, [contenteditable=true]");
-
         if (isChordInput) {
           const value = (target as HTMLInputElement).value ?? "";
           const hasLetter = /[a-zA-Z]/.test(value);
@@ -73,10 +80,29 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
           }
         }
       }
+
+      // . , ; ' — articulation shortcuts (slot must be selected, not in any input)
+      const articulation = ARTICULATION_KEYS[e.key];
+      if (articulation && !isOtherInput && !isChordInput) {
+        const { ui: currentUi, chart: currentChart } = useChartStore.getState();
+        const sel = currentUi.selection;
+        if (sel?.sectionId && sel.measureId && sel.beatId && sel.slotId) {
+          e.preventDefault();
+          const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+          const measure = section?.measures.find((m) => m.id === sel.measureId);
+          const beat = measure?.beats.find((b) => b.id === sel.beatId);
+          const slot = beat?.slots.find((s) => s.id === sel.slotId);
+          if (slot) {
+            updateSlot(sel.sectionId, sel.measureId, sel.beatId, sel.slotId, {
+              slash: { ...slot.slash, articulation },
+            });
+          }
+        }
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [undo, redo, setSelection, setBeatDivision]);
+  }, [undo, redo, setSelection, setBeatDivision, updateSlot]);
 
   return (
     <div

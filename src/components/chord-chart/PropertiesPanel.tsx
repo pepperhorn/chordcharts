@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChordInput } from "./ChordInput";
 import { TIME_SIGNATURES, DIVISIONS, ARTICULATIONS, DYNAMICS } from "@/lib/constants";
-import { PanelLeftClose, PanelLeftOpen, Music, MousePointer2 } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Music, MousePointer2, Keyboard } from "lucide-react";
 
 export function PropertiesPanel() {
   const { ui, chart, updateMeta, updateSection, updateMeasure, updateBeat, setBeatDivision, updateSlot } =
@@ -70,6 +70,27 @@ export function PropertiesPanel() {
             </TooltipTrigger>
             <TooltipContent side="right">Selection</TooltipContent>
           </Tooltip>
+          <Separator className="w-6 my-1" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 cursor-default" aria-label="Keyboard shortcuts">
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="p-3">
+              <p className="text-xs font-semibold mb-2">Keyboard Shortcuts</p>
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                <kbd className="font-mono bg-muted px-1 rounded">1–5</kbd><span>Beat division</span>
+                <kbd className="font-mono bg-muted px-1 rounded">.</kbd><span>Staccato</span>
+                <kbd className="font-mono bg-muted px-1 rounded">,</kbd><span>Marcato</span>
+                <kbd className="font-mono bg-muted px-1 rounded">;</kbd><span>Accent</span>
+                <kbd className="font-mono bg-muted px-1 rounded">'</kbd><span>Legato</span>
+                <kbd className="font-mono bg-muted px-1 rounded">⌘Z</kbd><span>Undo</span>
+                <kbd className="font-mono bg-muted px-1 rounded">⌘Y</kbd><span>Redo</span>
+                <kbd className="font-mono bg-muted px-1 rounded">Esc</kbd><span>Deselect</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       </div>
     );
@@ -118,6 +139,22 @@ export function PropertiesPanel() {
             <div className="space-y-2">
               <Label htmlFor="chart-tempo-text">Tempo Text</Label>
               <Input id="chart-tempo-text" value={chart.meta.tempoText} onChange={(e) => updateMeta({ tempoText: e.target.value })} placeholder="e.g., Moderato" />
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Keyboard className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">Keyboard Shortcuts</span>
+              </div>
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">1–5</kbd><span>Beat division</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">.</kbd><span>Staccato</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">,</kbd><span>Marcato</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">;</kbd><span>Accent</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">'</kbd><span>Legato</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">⌘Z / ⌘Y</kbd><span>Undo / Redo</span>
+                <kbd className="font-mono bg-muted px-1 rounded text-foreground">Esc</kbd><span>Deselect</span>
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="selection" className="space-y-4 mt-4">
