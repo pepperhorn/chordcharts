@@ -7,10 +7,19 @@
   font-style: normal;
 }
 
-/* PetalumaText – companion text font for chord symbols and annotations */
+/* PetalumaText – SMuFL companion (same glyph set as Petaluma, text metrics) */
 @font-face {
   font-family: "PetalumaText";
   src: url("/fonts/PetalumaText.woff2") format("woff2");
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* PetalumaScript – handwritten-style Latin text font for chord names etc. */
+@font-face {
+  font-family: "PetalumaScript";
+  src: url("/fonts/PetalumaScript.woff2") format("woff2");
   font-display: swap;
   font-weight: normal;
   font-style: normal;

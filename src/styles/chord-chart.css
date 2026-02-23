@@ -8,6 +8,9 @@
 .font-petaluma-text {
   font-family: "PetalumaText", system-ui, sans-serif;
 }
+.font-petaluma-script {
+  font-family: "PetalumaScript", system-ui, sans-serif;
+}
 
 :root,
 [data-theme="light"] {
