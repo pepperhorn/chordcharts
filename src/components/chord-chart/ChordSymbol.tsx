@@ -1,6 +1,6 @@
 import React from "react";
 import type { Chord, NashvilleChord } from "@/lib/schema";
-import { formatChord } from "@/lib/utils";
+import { formatChord, getQualitySymbol } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 function formatNashvilleChord(chord: NashvilleChord): string {
@@ -29,6 +29,23 @@ export function ChordSymbol({
     notationType === "nashville"
       ? formatNashvilleChord(nashvilleChord!)
       : formatChord(chord!);
+
+  // Render extensions (2nd+ partials) at 2px smaller per standard engraving practice
+  if (notationType === "standard" && chord?.extensions?.length) {
+    const primary = `${chord.root}${getQualitySymbol(chord.quality)}`;
+    const extensions = chord.extensions.join("");
+    const bass = chord.bass ? `/${chord.bass}` : "";
+    return (
+      <span
+        className={cn("font-petaluma-script font-semibold text-xl whitespace-nowrap", className)}
+        aria-label={`Chord: ${formattedChord}`}
+      >
+        {primary}
+        <span className="text-lg">{extensions}</span>
+        {bass}
+      </span>
+    );
+  }
 
   return (
     <span
