@@ -100,11 +100,11 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
         <span
           className="beamed-slash-group__triplet-indicator absolute"
           style={{
-            left: `${getSlotPct(1)}%`,
+            left: `calc(50% + 14px)`,
             top: 1,
             transform: 'translateX(-50%)',
             fontFamily: 'PetalumaScript',
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 'bold',
             fontStyle: 'italic',
             lineHeight: 1,
@@ -291,11 +291,11 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slo
       <span
         className="sixteenth-triplet-group__triplet-indicator absolute"
         style={{
-          left: `${getSlotPct(1)}%`,
+          left: `calc(50% + 14px)`,
           top: 1,
           transform: 'translateX(-50%)',
           fontFamily: 'PetalumaScript',
-          fontSize: 11,
+          fontSize: 14,
           fontWeight: 'bold',
           fontStyle: 'italic',
           lineHeight: 1,
