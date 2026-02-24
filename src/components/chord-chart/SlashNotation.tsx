@@ -4,6 +4,7 @@ interface SlashNotationProps {
   articulation: string;
   tied?: boolean;
   size?: "sm" | "md" | "lg";
+  articulationSize?: "sm" | "md" | "lg" | "xl";
 }
 
 // Fixed height for all sizes to ensure vertical alignment across beat types
@@ -15,8 +16,7 @@ const SLASH_HEIGHT = 14;
 const SLASH_WIDTH = 9;
 const SLASH_STROKE = 2.2;
 
-// 75% of notehead height — the target size for accent, marcato, and legato marks
-const ARTIC_HALF = (SLASH_HEIGHT * 0.75) / 2; // 5.25px (marks span 10.5px total)
+const ARTIC_SIZE_PCT: Record<string, number> = { sm: 0.70, md: 0.75, lg: 0.80, xl: 0.90 };
 
 const sizeMap = {
   sm: { width: 22, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
@@ -28,10 +28,12 @@ export function SlashNotation({
   articulation = "none",
   tied = false,
   size = "md",
+  articulationSize = "lg",
 }: SlashNotationProps) {
   const { width, slashHeight, slashWidth } = sizeMap[size];
   const strokeW = Math.max(1.5, width / 12);
   const dotR = Math.max(2, width / 10);
+  const ARTIC_HALF = (SLASH_HEIGHT * (ARTIC_SIZE_PCT[articulationSize] ?? 0.80)) / 2;
 
   // Notehead glyph sizing: SMuFL noteheadSlashVerticalEnds (U+E100)
   // Petaluma is a 2048-UPM font; notehead is ~0.225× fontSize tall

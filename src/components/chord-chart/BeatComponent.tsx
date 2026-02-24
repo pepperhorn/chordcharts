@@ -20,6 +20,7 @@ export function BeatComponent({
   beatIndex,
 }: BeatComponentProps) {
   const { ui, setSelection } = useChartStore();
+  const articulationSize = ui.articulationSize;
   const isSelected = ui.selection?.beatId === beat.id;
   const n = beat.slots.length;
   const slotMinPx = rhythmicSlotMin(beat.division);
@@ -145,6 +146,7 @@ export function BeatComponent({
                   articulation={slot.slash.articulation}
                   tied={slot.slash.tied}
                   size={slashSize}
+                  articulationSize={articulationSize}
                 />
               ) : (
                 <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
@@ -164,6 +166,7 @@ export function BeatComponent({
                 slots={beat.slots.map((s) => s.slash)}
                 size={slashSize === "sm" ? "sm" : "md"}
                 selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
+                articulationSize={articulationSize}
               />
             </div>
           )}

@@ -10,6 +10,7 @@ interface BeamedSlashGroupProps {
   slots: SlotSlash[];
   size?: "sm" | "md";
   selectedIndex?: number;
+  articulationSize?: "sm" | "md" | "lg" | "xl";
 }
 
 // Fixed height to match SlashNotation for vertical alignment
@@ -26,11 +27,9 @@ const SLASH_STROKE = 2.2;
 const NOTE_SVG_WIDTH = 32;
 const NOTE_CENTER_X = NOTE_SVG_WIDTH / 2;
 
-// 75% of notehead height — target size for accent, marcato, and legato marks.
-// ARTIC_HALF is the ± offset from mark centre (marks span 10.5px total).
 // ARTIC_HALF_W is the horizontal half-span (matches notehead width).
-const ARTIC_HALF = (SLASH_HEIGHT * 0.75) / 2;   // 5.25
 const ARTIC_HALF_W = SLASH_WIDTH / 2;             // 4.5
+const ARTIC_SIZE_PCT: Record<string, number> = { sm: 0.70, md: 0.75, lg: 0.80, xl: 0.90 };
 
 /**
  * Renders standard slash notation with stems and beams.
@@ -38,8 +37,9 @@ const ARTIC_HALF_W = SLASH_WIDTH / 2;             // 4.5
  * regardless of container width. Beams are CSS divs that stretch between
  * percentage-positioned stems.
  */
-export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: BeamedSlashGroupProps) {
+export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1, articulationSize = "lg" }: BeamedSlashGroupProps) {
   const n = slots.length;
+  const ARTIC_HALF = (SLASH_HEIGHT * (ARTIC_SIZE_PCT[articulationSize] ?? 0.80)) / 2;
 
   // Sixteenth triplets: render as two separate groups of 3
   if (n === 6) {
@@ -49,8 +49,8 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
     const group2Selected = selectedIndex >= 3 ? selectedIndex - 3 : -1;
     return (
       <div className="beamed-slash-group beamed-slash-group--sixteenth-triplet flex items-center w-full">
-        <div className="flex-1"><SixteenthTripletGroup slots={group1} size={size} selectedIndex={group1Selected} /></div>
-        <div className="flex-1"><SixteenthTripletGroup slots={group2} size={size} selectedIndex={group2Selected} /></div>
+        <div className="flex-1"><SixteenthTripletGroup slots={group1} size={size} selectedIndex={group1Selected} articulationSize={articulationSize} /></div>
+        <div className="flex-1"><SixteenthTripletGroup slots={group2} size={size} selectedIndex={group2Selected} articulationSize={articulationSize} /></div>
       </div>
     );
   }
@@ -266,8 +266,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1 }: Bea
 }
 
 /** Renders a single group of 3 sixteenth notes with double beam and "3" indicator */
-function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1 }: { slots: SlotSlash[]; size?: "sm" | "md"; selectedIndex?: number }) {
+function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1, articulationSize = "lg" }: { slots: SlotSlash[]; size?: "sm" | "md"; selectedIndex?: number; articulationSize?: "sm" | "md" | "lg" | "xl" }) {
   const n = 3;
+  const ARTIC_HALF = (SLASH_HEIGHT * (ARTIC_SIZE_PCT[articulationSize] ?? 0.80)) / 2;
 
   const beamHeight = 3;
   const beamGap = 3.5;

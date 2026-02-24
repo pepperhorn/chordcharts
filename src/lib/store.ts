@@ -34,6 +34,8 @@ interface EditorUIState {
   showLyrics: boolean;
   showInstructions: boolean;
   theme: "light" | "dark" | "high-contrast";
+  articulationSize: "sm" | "md" | "lg" | "xl";
+  showKeyboardShortcuts: boolean;
 }
 
 interface ChartState {
@@ -87,6 +89,8 @@ interface ChartState {
   toggleShowLyrics: () => void;
   toggleShowInstructions: () => void;
   setTheme: (theme: EditorUIState["theme"]) => void;
+  setArticulationSize: (size: EditorUIState["articulationSize"]) => void;
+  toggleShowKeyboardShortcuts: () => void;
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
@@ -115,6 +119,8 @@ export const useChartStore = create<ChartState>()(
       showLyrics: true,
       showInstructions: true,
       theme: "light",
+      articulationSize: "lg",
+      showKeyboardShortcuts: true,
     },
     history: [],
     historyIndex: -1,
@@ -333,6 +339,9 @@ export const useChartStore = create<ChartState>()(
     toggleShowInstructions: () =>
       set((state) => ({ ui: { ...state.ui, showInstructions: !state.ui.showInstructions } })),
     setTheme: (theme) => set((state) => ({ ui: { ...state.ui, theme } })),
+
+    setArticulationSize: (size) => set((state) => ({ ui: { ...state.ui, articulationSize: size } })),
+    toggleShowKeyboardShortcuts: () => set((state) => ({ ui: { ...state.ui, showKeyboardShortcuts: !state.ui.showKeyboardShortcuts } })),
 
     undo: () => {
       const state = get();

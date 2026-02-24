@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { ARTICULATIONS, ARTICULATION_LABELS, CHORD_QUALITIES } from "@/lib/constants";
 import {
   Undo2,
@@ -21,6 +23,7 @@ import {
   CornerDownRight,
   Download,
   Upload,
+  Settings,
 } from "lucide-react";
 
 export function Toolbar() {
@@ -41,6 +44,8 @@ export function Toolbar() {
     updateSlot,
     exportJSON,
     importJSON,
+    setArticulationSize,
+    toggleShowKeyboardShortcuts,
   } = useChartStore();
 
   const { selection } = ui;
@@ -366,6 +371,47 @@ export function Toolbar() {
           </TooltipTrigger>
           <TooltipContent>Export JSON</TooltipContent>
         </Tooltip>
+        <Popover>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <Button className="toolbar__settings-btn" variant="outline" size="icon" aria-label="Settings">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Settings</TooltipContent>
+          </Tooltip>
+          <PopoverContent className="w-56" align="end">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Articulation Size</Label>
+                <Select value={ui.articulationSize} onValueChange={(v: "sm" | "md" | "lg" | "xl") => setArticulationSize(v)}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sm">Small (70%)</SelectItem>
+                    <SelectItem value="md">Medium (75%)</SelectItem>
+                    <SelectItem value="lg">Large (80%)</SelectItem>
+                    <SelectItem value="xl">Extra Large (90%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">Keyboard Shortcuts</Label>
+                <Button
+                  variant={ui.showKeyboardShortcuts ? "default" : "ghost"}
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={toggleShowKeyboardShortcuts}
+                >
+                  {ui.showKeyboardShortcuts ? "Shown" : "Hidden"}
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </TooltipProvider>
   );
