@@ -87,6 +87,8 @@ export function PropertiesPanel() {
                   <kbd className="font-mono bg-muted px-1 rounded">,</kbd><span>Marcato (toggle)</span>
                   <kbd className="font-mono bg-muted px-1 rounded">;</kbd><span>Accent (toggle)</span>
                   <kbd className="font-mono bg-muted px-1 rounded">'</kbd><span>Legato (toggle)</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">⇧B</kbd><span>Toggle stem</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">X</kbd><span>Flip stem</span>
                   <kbd className="font-mono bg-muted px-1 rounded">⌘Z</kbd><span>Undo</span>
                   <kbd className="font-mono bg-muted px-1 rounded">⌘Y</kbd><span>Redo</span>
                   <kbd className="font-mono bg-muted px-1 rounded">Esc</kbd><span>Deselect</span>
@@ -157,6 +159,8 @@ export function PropertiesPanel() {
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">,</kbd><span>Marcato</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">;</kbd><span>Accent</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">'</kbd><span>Legato</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">⇧B</kbd><span>Toggle stem</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">X</kbd><span>Flip stem</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">⌘Z / ⌘Y</kbd><span>Undo / Redo</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">Esc</kbd><span>Deselect</span>
                   </div>
@@ -274,7 +278,20 @@ export function PropertiesPanel() {
                 </div>
                 <div className="space-y-2">
                   <Label>Articulation</Label>
-                  <Select value={selectedSlot.slash.articulation} onValueChange={(v) => updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, { slash: { ...selectedSlot.slash, articulation: v as Slash["articulation"] } })}>
+                  <Select
+                    value={selectedSlot.slash.articulation}
+                    onValueChange={(v) => {
+                      const newArtic = v as Slash["articulation"];
+                      const isQuarter = selectedBeat?.division === "quarter";
+                      updateSlot(selection.sectionId, selection.measureId!, selection.beatId!, selectedSlot.id, {
+                        slash: {
+                          ...selectedSlot.slash,
+                          articulation: newArtic,
+                          ...(isQuarter && newArtic !== "none" ? { stem: true } : {}),
+                        },
+                      });
+                    }}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ARTICULATIONS.map((a) => <SelectItem key={a} value={a}>{ARTICULATION_LABELS[a] ?? a}</SelectItem>)}

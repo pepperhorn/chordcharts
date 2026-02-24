@@ -34,6 +34,13 @@ export function BeatComponent({
     if (e.key === "Enter" || e.key === " ") handleSlotClick(e as unknown as React.MouseEvent, slotId);
   };
 
+  // Clicking the rhythm row (slash noteheads / beamed group) selects the beat, not the slot.
+  // This keeps the chord input unfocused so stem shortcuts (Shift+B, X) work immediately.
+  const handleBeatSelect = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelection({ type: "beat", sectionId, measureId, beatId: beat.id });
+  };
+
   const isBeamed = beat.division !== "quarter" && n > 1;
   const slashSize =
     beat.division === "quarter"
@@ -134,12 +141,12 @@ export function BeatComponent({
                 "beat__rhythm-slot",
                 "flex items-center justify-center cursor-pointer p-0.5",
                 "hover:bg-muted/50 transition-colors",
-                ui.selection?.slotId === slot.id && "beat__rhythm-slot--selected bg-[#c3eff7]"
+                (ui.selection?.slotId === slot.id || (isSelected && !ui.selection?.slotId)) && "beat__rhythm-slot--selected bg-[#c3eff7]"
               )}
-              onClick={(e) => handleSlotClick(e, slot.id)}
+              onClick={handleBeatSelect}
               tabIndex={0}
               role="button"
-              onKeyDown={(e) => handleSlotKeyDown(e, slot.id)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleBeatSelect(e as unknown as React.MouseEvent); }}
             >
               {!slot.slash.rest ? (
                 <SlashNotation
@@ -147,6 +154,8 @@ export function BeatComponent({
                   tied={slot.slash.tied}
                   size={slashSize}
                   articulationSize={articulationSize}
+                  stem={slot.slash.stem}
+                  stemDirection={slot.slash.stemDirection}
                 />
               ) : (
                 <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
@@ -160,7 +169,8 @@ export function BeatComponent({
           {isBeamed && (
             <div
               style={{ gridRow: 2, gridColumn: "1 / -1" }}
-              className="beat__beamed-group w-full"
+              className="beat__beamed-group w-full cursor-pointer"
+              onClick={handleBeatSelect}
             >
               <BeamedSlashGroup
                 slots={beat.slots.map((s) => s.slash)}

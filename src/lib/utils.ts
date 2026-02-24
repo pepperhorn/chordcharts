@@ -16,7 +16,7 @@ export function createBeatSlot(): BeatSlot {
     id: generateId(),
     chord: null,
     nashvilleChord: null,
-    slash: { articulation: "none", tied: false, rest: false },
+    slash: { articulation: "none", tied: false, rest: false, stem: false, stemDirection: "up" },
   };
 }
 

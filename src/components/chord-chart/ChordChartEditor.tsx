@@ -130,9 +130,55 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
           const beat = measure?.beats.find((b) => b.id === sel.beatId);
           const slot = beat?.slots.find((s) => s.id === sel.slotId);
           if (slot) {
+            const newArtic = toggleArticulation(slot.slash.articulation, articulationKey);
+            const isQuarter = beat?.division === "quarter";
             updateSlot(sel.sectionId, sel.measureId, sel.beatId, sel.slotId, {
-              slash: { ...slot.slash, articulation: toggleArticulation(slot.slash.articulation, articulationKey) },
+              slash: {
+                ...slot.slash,
+                articulation: newArtic,
+                ...(isQuarter && newArtic !== "none" ? { stem: true } : {}),
+              },
             });
+          }
+        }
+      }
+
+      // Shift+B — toggle stem on selected quarter beat
+      if (e.key === "B" && !isChordInput && !isOtherInput) {
+        const { ui: currentUi, chart: currentChart } = useChartStore.getState();
+        const sel = currentUi.selection;
+        if (sel?.sectionId && sel.measureId && sel.beatId) {
+          const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+          const measure = section?.measures.find((m) => m.id === sel.measureId);
+          const beat = measure?.beats.find((b) => b.id === sel.beatId);
+          if (beat?.division === "quarter") {
+            e.preventDefault();
+            const slot = beat.slots[0];
+            if (slot) {
+              updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+                slash: { ...slot.slash, stem: !slot.slash.stem },
+              });
+            }
+          }
+        }
+      }
+
+      // X — flip stem direction on selected quarter beat
+      if (e.key === "x" && !isChordInput && !isOtherInput) {
+        const { ui: currentUi, chart: currentChart } = useChartStore.getState();
+        const sel = currentUi.selection;
+        if (sel?.sectionId && sel.measureId && sel.beatId) {
+          const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+          const measure = section?.measures.find((m) => m.id === sel.measureId);
+          const beat = measure?.beats.find((b) => b.id === sel.beatId);
+          if (beat?.division === "quarter") {
+            e.preventDefault();
+            const slot = sel.slotId ? beat.slots.find((s) => s.id === sel.slotId) : beat.slots[0];
+            if (slot) {
+              updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+                slash: { ...slot.slash, stemDirection: slot.slash.stemDirection === "up" ? "down" : "up" },
+              });
+            }
           }
         }
       }

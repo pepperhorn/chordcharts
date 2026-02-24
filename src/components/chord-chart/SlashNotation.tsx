@@ -5,6 +5,8 @@ interface SlashNotationProps {
   tied?: boolean;
   size?: "sm" | "md" | "lg";
   articulationSize?: "sm" | "md" | "lg" | "xl";
+  stem?: boolean;
+  stemDirection?: "up" | "down";
 }
 
 // Fixed height for all sizes to ensure vertical alignment across beat types
@@ -24,11 +26,18 @@ const sizeMap = {
   lg: { width: 34, slashHeight: SLASH_HEIGHT, slashWidth: SLASH_WIDTH },
 };
 
+// Horizontal stem offset from notehead center (matches Petaluma SE stem anchor)
+const STEM_OFFSET_X = 11;
+// Y position of stem tip when stem-up (leaves 27px stem, matching original beamed length)
+const STEM_TIP_UP = 16;
+
 export function SlashNotation({
   articulation = "none",
   tied = false,
   size = "md",
   articulationSize = "lg",
+  stem = false,
+  stemDirection = "up",
 }: SlashNotationProps) {
   const { width, slashHeight, slashWidth } = sizeMap[size];
   const strokeW = Math.max(1.5, width / 12);
@@ -41,15 +50,22 @@ export function SlashNotation({
   const glyphFontSize = size === "lg" ? 70 : size === "md" ? 62 : 54;
   const glyphHalfH = slashHeight / 2;
 
-  // Articulation positions relative to notehead center
+  // Notehead top / bottom reference points
   const slashCenterY = SLASH_CENTER_Y;
-  const slashY2 = slashCenterY - glyphHalfH; // estimated notehead top
-  const slashY1 = slashCenterY + glyphHalfH; // estimated notehead bottom
+  const slashTopY = slashCenterY - glyphHalfH;    // ≈ 43
+  const slashBottomY = slashCenterY + glyphHalfH;  // ≈ 57
 
-  // Above mark center (accent, marcato) — clear of notehead top
-  const aboveSlashY = slashY2 - 8;
-  // Below mark position (staccato, legato) — clear of notehead bottom
-  const belowSlashY = slashY1 + 5;
+  // Stem endpoints
+  const stemTipUp = STEM_TIP_UP;
+  const stemTipDown = slashBottomY + 24; // 24px below notehead bottom (overflows via overflow:visible)
+
+  // Above mark: above stem tip (when stem-up) or above notehead top (no stem / stem-down)
+  const aboveRef = (stem && stemDirection === "up") ? stemTipUp : slashTopY;
+  // Center: bottom of mark = aboveRef - 3px gap; clamped to avoid clipping SVG top
+  const aboveSlashY = Math.max(ARTIC_HALF + 2, aboveRef - 3 - ARTIC_HALF);
+
+  // Below mark: always just below notehead bottom
+  const belowSlashY = slashBottomY + 5;
 
   // Decode compound articulation using string inclusion
   const hasStaccato = articulation.includes("staccato");
@@ -85,6 +101,29 @@ export function SlashNotation({
         fontSize={glyphFontSize}
         fill="currentColor"
       >{'\uE100'}</text>
+      {/* Quarter note stem */}
+      {stem && stemDirection === "up" && (
+        <line
+          x1={cx + STEM_OFFSET_X}
+          y1={slashTopY}
+          x2={cx + STEM_OFFSET_X}
+          y2={stemTipUp}
+          stroke="currentColor"
+          strokeWidth={1.2}
+          strokeLinecap="butt"
+        />
+      )}
+      {stem && stemDirection === "down" && (
+        <line
+          x1={cx - STEM_OFFSET_X}
+          y1={slashBottomY}
+          x2={cx - STEM_OFFSET_X}
+          y2={stemTipDown}
+          stroke="currentColor"
+          strokeWidth={1.2}
+          strokeLinecap="butt"
+        />
+      )}
       {tied && (
         <path
           d={`M ${width} ${slashCenterY + 4} Q ${width + 8} ${slashCenterY + 10} ${width + 16} ${slashCenterY + 4}`}

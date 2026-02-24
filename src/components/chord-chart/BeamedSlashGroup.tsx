@@ -65,9 +65,9 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1, artic
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 15 + beamHeight / 2;
+  const beam1Y = 20 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  const stemTop = 16; // stem starts 1px below beam top for a clean cap
+  const stemTop = 21; // stem starts 1px below beam top for a clean cap
 
   // Slot percentage positions (center of each slot)
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
@@ -211,8 +211,8 @@ export function BeamedSlashGroup({ slots, size = "md", selectedIndex = -1, artic
                 const hasLegato   = a.includes("legato");
                 const hasMarcato  = a.includes("marcato");
                 const hasAccent   = a.includes("accent");
-                // Above mark centre: just above the primary beam
-                const aboveCY = (beam1Y - beamHeight / 2) - ARTIC_HALF;
+                // Above mark centre: 5px clear of beam top
+                const aboveCY = (beam1Y - beamHeight / 2) - 5 - ARTIC_HALF;
                 const sw = size === "sm" ? 1.4 : 1.7;
                 return (
                   <>
@@ -277,9 +277,9 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1, articul
   const slashTopY = SLASH_CENTER_Y - SLASH_HEIGHT / 2;
   const slashBottomY = SLASH_CENTER_Y + SLASH_HEIGHT / 2;
 
-  const beam1Y = 15 + beamHeight / 2;
+  const beam1Y = 20 + beamHeight / 2;
   const beam2Y = beam1Y + beamHeight + beamGap;
-  const stemTop = 16; // stem starts 1px below beam top for a clean cap
+  const stemTop = 21; // stem starts 1px below beam top for a clean cap
 
   const getSlotPct = (i: number) => ((i + 0.5) / n) * 100;
   // fontSize=50 → staff space=12.5px → SE anchor ~0.73×12.5 ≈ 9px
@@ -412,8 +412,8 @@ function SixteenthTripletGroup({ slots, size = "md", selectedIndex = -1, articul
                 const hasLegato   = a.includes("legato");
                 const hasMarcato  = a.includes("marcato");
                 const hasAccent   = a.includes("accent");
-                // Above mark centre: just above the primary beam
-                const aboveCY = (beam1Y - beamHeight / 2) - ARTIC_HALF;
+                // Above mark centre: 5px clear of beam top
+                const aboveCY = (beam1Y - beamHeight / 2) - 5 - ARTIC_HALF;
                 return (
                   <>
                     {/* Accent: > pointing right, above beam */}

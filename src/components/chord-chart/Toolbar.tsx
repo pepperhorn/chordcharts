@@ -241,8 +241,29 @@ export function Toolbar() {
                 value={chordInputValue}
                 onChange={(e) => setChordInputValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (['.', ',', ';', "'"].includes(e.key)) {
+                  if (['.', ',', ';', "'", 'x'].includes(e.key)) {
                     e.preventDefault();
+                    return;
+                  }
+                  // Shift+B: toggle stem — prevent typing "B" and delegate to store
+                  if (e.key === "B" && e.shiftKey) {
+                    e.preventDefault();
+                    const { chart: currentChart, ui: currentUi } = useChartStore.getState();
+                    const sel = currentUi.selection;
+                    if (sel?.sectionId && sel.measureId && sel.beatId) {
+                      const beat = currentChart.sections
+                        .find((s) => s.id === sel.sectionId)?.measures
+                        .find((m) => m.id === sel.measureId)?.beats
+                        .find((b) => b.id === sel.beatId);
+                      if (beat?.division === "quarter") {
+                        const slot = beat.slots[0];
+                        if (slot) {
+                          updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+                            slash: { ...slot.slash, stem: !slot.slash.stem },
+                          });
+                        }
+                      }
+                    }
                     return;
                   }
                   if (e.key === "Enter") {
@@ -258,11 +279,17 @@ export function Toolbar() {
               <span className="toolbar__articulation-label text-sm text-muted-foreground whitespace-nowrap">Artic.</span>
               <Select
                 value={selectedSlot.slash.articulation}
-                onValueChange={(v) =>
+                onValueChange={(v) => {
+                  const newArtic = v as Slash["articulation"];
+                  const isQuarter = selectedBeat?.division === "quarter";
                   updateSlot(selection.sectionId!, selection.measureId!, selection.beatId!, selectedSlot.id, {
-                    slash: { ...selectedSlot.slash, articulation: v as Slash["articulation"] },
-                  })
-                }
+                    slash: {
+                      ...selectedSlot.slash,
+                      articulation: newArtic,
+                      ...(isQuarter && newArtic !== "none" ? { stem: true } : {}),
+                    },
+                  });
+                }}
               >
                 <SelectTrigger className="toolbar__articulation-select w-24 h-8" aria-label="Articulation">
                   <SelectValue />

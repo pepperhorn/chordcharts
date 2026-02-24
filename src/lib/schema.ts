@@ -24,6 +24,8 @@ export const SlashSchema = z.object({
   ]).default("none"),
   tied: z.boolean().default(false),
   rest: z.boolean().default(false),
+  stem: z.boolean().default(false),
+  stemDirection: z.enum(["up", "down"]).default("up"),
 });
 
 // Single beat slot schema
@@ -31,7 +33,7 @@ export const BeatSlotSchema = z.object({
   id: z.string(),
   chord: ChordSchema.nullable().default(null),
   nashvilleChord: NashvilleChordSchema.nullable().default(null),
-  slash: SlashSchema.default({ articulation: "none", tied: false, rest: false }),
+  slash: SlashSchema.default({ articulation: "none", tied: false, rest: false, stem: false, stemDirection: "up" }),
 });
 
 // Beat schema (contains slots based on division)
