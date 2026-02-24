@@ -104,9 +104,9 @@ export function SlashNotation({
       {/* Quarter note stem */}
       {stem && stemDirection === "up" && (
         <line
-          x1={cx + STEM_OFFSET_X}
+          x1={cx + STEM_OFFSET_X + 2}
           y1={slashTopY}
-          x2={cx + STEM_OFFSET_X}
+          x2={cx + STEM_OFFSET_X + 2}
           y2={stemTipUp}
           stroke="currentColor"
           strokeWidth={1.2}
@@ -115,9 +115,9 @@ export function SlashNotation({
       )}
       {stem && stemDirection === "down" && (
         <line
-          x1={cx - STEM_OFFSET_X}
+          x1={cx - STEM_OFFSET_X - 2}
           y1={slashBottomY}
-          x2={cx - STEM_OFFSET_X}
+          x2={cx - STEM_OFFSET_X - 2}
           y2={stemTipDown}
           stroke="currentColor"
           strokeWidth={1.2}
