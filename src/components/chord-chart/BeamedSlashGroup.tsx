@@ -596,11 +596,11 @@ export function QuarterTripletGroup({ slots, size = "md", selectedIndex = -1, ar
   const bDotR = Math.max(1.5, ARTIC_HALF * 0.35);
 
   // Bracket line geometry
-  const indicatorPct = isUp ? 56 : 42;           // matches indicator span left %
+  const indicatorPct = 50;                        // centered on triplet group
   const bracketY = isUp ? -10 : 86;
   const hookH = 6;
   const textGap = 10;                            // px gap between "3" text and bracket
-  const bracketExtent = SLASH_WIDTH / 2 + 10;    // 10px past notehead edge
+  const bracketExtent = SLASH_WIDTH / 2 + 3;     // 3px past notehead edge
 
   return (
     <div
@@ -654,7 +654,7 @@ export function QuarterTripletGroup({ slots, size = "md", selectedIndex = -1, ar
       <span
         className="quarter-triplet-group__triplet-indicator absolute"
         style={{
-          left: isUp ? '56%' : '42%',
+          left: '50%',
           top: tripletIndicatorTop,
           transform: 'translateX(-50%)',
           fontFamily: 'Petaluma',
