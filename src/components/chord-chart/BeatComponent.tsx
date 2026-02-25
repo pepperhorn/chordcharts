@@ -2,7 +2,7 @@ import React, { useRef, useState, useLayoutEffect } from "react";
 import { useChartStore } from "@/lib/store";
 import type { Beat } from "@/lib/schema";
 import { SlashNotation } from "./SlashNotation";
-import { BeamedSlashGroup } from "./BeamedSlashGroup";
+import { BeamedSlashGroup, QuarterTripletGroup } from "./BeamedSlashGroup";
 import { ChordSymbol } from "./ChordSymbol";
 import { cn, rhythmicSlotMin } from "@/lib/utils";
 
@@ -11,6 +11,9 @@ interface BeatComponentProps {
   sectionId: string;
   measureId: string;
   beatIndex: number;
+  isDisabled?: boolean;
+  showRhythm?: boolean;
+  chordRhythmGap?: number;
 }
 
 export function BeatComponent({
@@ -18,6 +21,9 @@ export function BeatComponent({
   sectionId,
   measureId,
   beatIndex,
+  isDisabled = false,
+  showRhythm = true,
+  chordRhythmGap = 0,
 }: BeatComponentProps) {
   const { ui, setSelection } = useChartStore();
   const articulationSize = ui.articulationSize;
@@ -41,9 +47,11 @@ export function BeatComponent({
     setSelection({ type: "beat", sectionId, measureId, beatId: beat.id });
   };
 
-  const isBeamed = beat.division !== "quarter" && n > 1;
+  const isBeamed = beat.division === "eighth" || beat.division === "eighthTriplet" ||
+                   beat.division === "sixteenth" || beat.division === "sixteenthTriplet";
+  const isQuarterTriplet = beat.division === "quarterTriplet";
   const slashSize =
-    beat.division === "quarter"
+    beat.division === "quarter" || beat.division === "half" || beat.division === "whole"
       ? "lg"
       : beat.division === "sixteenth" || beat.division === "sixteenthTriplet"
         ? "sm"
@@ -60,8 +68,13 @@ export function BeatComponent({
   // We expand the entire beat (not individual columns) so equal 1fr columns are
   // preserved and BeamedSlashGroup notehead percentages stay correct.
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const beatRef = useRef<HTMLDivElement>(null);
   const [contentMinWidth, setContentMinWidth] = useState(0);
+  const [beatWidth, setBeatWidth] = useState(0);
   useLayoutEffect(() => {
+    if (beatRef.current) {
+      setBeatWidth(beatRef.current.offsetWidth);
+    }
     let maxW = 0;
     for (let i = 0; i < n; i++) {
       const el = slotRefs.current[i];
@@ -78,11 +91,13 @@ export function BeatComponent({
 
   return (
     <div
+      ref={beatRef}
       className={cn(
         "beat",
         "flex flex-col",
         "border-r border-dashed border-border/50 last:border-r-0",
-        isSelected && "beat--selected bg-[#c3eff7]"
+        isSelected && "beat--selected bg-[#c3eff7]",
+        isDisabled && "beat--disabled opacity-30 pointer-events-none"
       )}
       role="group"
       aria-label={`Beat ${beatIndex + 1}, ${beat.division} division`}
@@ -101,6 +116,7 @@ export function BeatComponent({
           style={{
             gridTemplateColumns: `repeat(${n}, 1fr)`,
             gridTemplateRows: "minmax(2rem, auto) 72px",
+            ...(chordRhythmGap > 0 ? { rowGap: chordRhythmGap } : {}),
             ...(effectiveMinWidth ? { minWidth: effectiveMinWidth } : {}),
           }}
         >
@@ -132,53 +148,83 @@ export function BeatComponent({
             </div>
           ))}
 
-          {/* Row 2 – individual slash noteheads (non-beamed) */}
-          {!isBeamed && beat.slots.map((slot, i) => (
-            <div
-              key={`r-${slot.id}`}
-              style={{ gridRow: 2, gridColumn: i + 1 }}
-              className={cn(
-                "beat__rhythm-slot",
-                "flex items-center justify-center cursor-pointer p-0.5",
-                "hover:bg-muted/50 transition-colors",
-                (ui.selection?.slotId === slot.id || (isSelected && !ui.selection?.slotId)) && "beat__rhythm-slot--selected bg-[#c3eff7]"
-              )}
-              onClick={handleBeatSelect}
-              tabIndex={0}
-              role="button"
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleBeatSelect(e as unknown as React.MouseEvent); }}
-            >
-              {!slot.slash.rest ? (
-                <SlashNotation
-                  articulation={slot.slash.articulation}
-                  tied={slot.slash.tied}
-                  size={slashSize}
-                  articulationSize={articulationSize}
-                  stem={slot.slash.stem}
-                  stemDirection={slot.slash.stemDirection}
-                />
-              ) : (
-                <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
-                  𝄽
-                </span>
-              )}
-            </div>
-          ))}
+          {/* Row 2 – rhythm notation (suppressed for whole-rest measures) */}
+          {showRhythm ? (
+            <>
+              {/* Row 2 – individual slash noteheads (quarter, half, whole) */}
+              {!isBeamed && !isQuarterTriplet && beat.slots.map((slot, i) => (
+                <div
+                  key={`r-${slot.id}`}
+                  style={{ gridRow: 2, gridColumn: i + 1 }}
+                  className={cn(
+                    "beat__rhythm-slot",
+                    "flex items-center justify-center cursor-pointer p-0.5",
+                    "hover:bg-muted/50 transition-colors",
+                    (ui.selection?.slotId === slot.id || (isSelected && !ui.selection?.slotId)) && "beat__rhythm-slot--selected bg-[#c3eff7]"
+                  )}
+                  onClick={handleBeatSelect}
+                  tabIndex={0}
+                  role="button"
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleBeatSelect(e as unknown as React.MouseEvent); }}
+                >
+                  {!slot.slash.rest ? (
+                    <SlashNotation
+                      articulation={slot.slash.articulation}
+                      tied={slot.slash.tied}
+                      size={slashSize}
+                      articulationSize={articulationSize}
+                      stem={beat.division === "half" ? true : slot.slash.stem}
+                      stemDirection={slot.slash.stemDirection}
+                      beatWidth={slot.slash.tied && beatWidth > 0 ? beatWidth : undefined}
+                      noteType={beat.division === "half" ? "half" : beat.division === "whole" ? "whole" : "quarter"}
+                    />
+                  ) : (
+                    <span className="beat__rest font-petaluma text-muted-foreground text-2xl" aria-label="Rest">
+                      {beat.division === "whole"
+                        ? String.fromCodePoint(0x1D13B)
+                        : beat.division === "half"
+                          ? String.fromCodePoint(0x1D13C)
+                          : '𝄽'}
+                    </span>
+                  )}
+                </div>
+              ))}
 
-          {/* Row 2 – beamed group spanning all columns */}
-          {isBeamed && (
-            <div
-              style={{ gridRow: 2, gridColumn: "1 / -1" }}
-              className="beat__beamed-group w-full cursor-pointer"
-              onClick={handleBeatSelect}
-            >
-              <BeamedSlashGroup
-                slots={beat.slots.map((s) => s.slash)}
-                size={slashSize === "sm" ? "sm" : "md"}
-                selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
-                articulationSize={articulationSize}
-              />
-            </div>
+              {/* Row 2 – quarter triplet group */}
+              {isQuarterTriplet && (
+                <div
+                  style={{ gridRow: 2, gridColumn: "1 / -1" }}
+                  className="beat__beamed-group w-full cursor-pointer"
+                  onClick={handleBeatSelect}
+                >
+                  <QuarterTripletGroup
+                    slots={beat.slots.map((s) => s.slash)}
+                    size="md"
+                    selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
+                    articulationSize={articulationSize}
+                  />
+                </div>
+              )}
+
+              {/* Row 2 – beamed group spanning all columns */}
+              {isBeamed && (
+                <div
+                  style={{ gridRow: 2, gridColumn: "1 / -1" }}
+                  className="beat__beamed-group w-full cursor-pointer"
+                  onClick={handleBeatSelect}
+                >
+                  <BeamedSlashGroup
+                    slots={beat.slots.map((s) => s.slash)}
+                    size={slashSize === "sm" ? "sm" : "md"}
+                    selectedIndex={beat.slots.findIndex((s) => s.id === ui.selection?.slotId)}
+                    articulationSize={articulationSize}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            /* Placeholder preserves 72px row height when rhythm is suppressed */
+            <div style={{ gridRow: 2, gridColumn: "1 / -1" }} />
           )}
         </div>
       ) : (

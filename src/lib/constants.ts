@@ -9,13 +9,17 @@ export const TIME_SIGNATURES = [
   { beats: 5, beatUnit: 4, label: "5/4" },
 ] as const;
 
-// Beat division options (1–5 keys: 1=quarter, 2=eighth, 3=eighth triplet, 4=sixteenth, 5=sixteenth triplet)
+// Beat division options (keys: 1=quarter, 2=eighth, 3=eighth triplet, 4=sixteenth, 5=sixteenth triplet,
+//                             7=quarter triplet, 8=half, 9=whole)
 export const DIVISIONS = {
   quarter: { slots: 1, label: "Quarter" },
   eighth: { slots: 2, label: "Eighth" },
   eighthTriplet: { slots: 3, label: "Eighth Triplet" },
   sixteenth: { slots: 4, label: "Sixteenth" },
   sixteenthTriplet: { slots: 6, label: "Sixteenth Triplet" },
+  half: { slots: 1, label: "Half" },
+  whole: { slots: 1, label: "Whole" },
+  quarterTriplet: { slots: 3, label: "Quarter Triplet" },
 } as const;
 
 // Barline types

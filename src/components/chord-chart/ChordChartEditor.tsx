@@ -14,6 +14,9 @@ const DIVISION_KEYS: Record<string, keyof typeof DIVISIONS> = {
   "3": "eighthTriplet",
   "4": "sixteenth",
   "5": "sixteenthTriplet",
+  "7": "quarterTriplet",
+  "8": "half",
+  "9": "whole",
 };
 
 const ARTICULATION_KEYS: Record<string, "staccato" | "marcato" | "accent" | "legato"> = {
@@ -62,7 +65,7 @@ interface ChordChartEditorProps {
 }
 
 export function ChordChartEditor({ className, initialChart }: ChordChartEditorProps) {
-  const { importJSON, setSelection, ui, undo, redo, setBeatDivision, updateSlot } = useChartStore();
+  const { importJSON, setSelection, ui, undo, redo, setBeatDivision, updateSlot, updateBeat } = useChartStore();
 
   // Enable arrow key navigation through chart elements
   useKeyboardNavigation();
@@ -91,26 +94,33 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
       const isChordInput = target?.getAttribute?.("data-toolbar-chord-input") != null;
       const isOtherInput = !isChordInput && target && "closest" in target && (target as Element).closest?.("input, textarea, [contenteditable=true]");
 
-      // 1–5: subdivision when no letter has been typed; otherwise chord input (e.g. A5, Bm7#5)
+      // 1–5, 7–9: subdivision when no letter has been typed; otherwise chord input (e.g. A5, Bm7#5)
+      // Key 9 (whole) always targets beat[0]. Keys 1–8 on beats 1+ when beat[0] is whole → unlock beat[0].
       const division = DIVISION_KEYS[e.key];
       if (division) {
-        if (isChordInput) {
-          const value = (target as HTMLInputElement).value ?? "";
-          const hasLetter = /[a-zA-Z]/.test(value);
-          if (!hasLetter) {
-            const { ui: currentUi } = useChartStore.getState();
-            const sel = currentUi.selection;
-            if (sel?.sectionId && sel.measureId && sel.beatId) {
-              e.preventDefault();
-              setBeatDivision(sel.sectionId, sel.measureId, sel.beatId, division);
-            }
-          }
-        } else if (!isOtherInput) {
-          const { ui: currentUi } = useChartStore.getState();
+        const shouldAct = isChordInput
+          ? !/[a-zA-Z]/.test((target as HTMLInputElement).value ?? "")
+          : !isOtherInput;
+        if (shouldAct) {
+          const { ui: currentUi, chart: currentChart } = useChartStore.getState();
           const sel = currentUi.selection;
           if (sel?.sectionId && sel.measureId && sel.beatId) {
-            e.preventDefault();
-            setBeatDivision(sel.sectionId, sel.measureId, sel.beatId, division);
+            const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+            const measure = section?.measures.find((m) => m.id === sel.measureId);
+            if (measure) {
+              e.preventDefault();
+              const beat0 = measure.beats[0];
+              const selectedBeatIndex = measure.beats.findIndex((b) => b.id === sel.beatId);
+              if (division === "whole") {
+                // Whole always targets beat[0] regardless of selection
+                setBeatDivision(sel.sectionId, sel.measureId, beat0.id, "whole");
+              } else if (beat0.division === "whole" && selectedBeatIndex > 0) {
+                // Beats 1+ are locked while beat[0] is whole; any division key unlocks (reverts to quarter)
+                setBeatDivision(sel.sectionId, sel.measureId, beat0.id, "quarter");
+              } else {
+                setBeatDivision(sel.sectionId, sel.measureId, sel.beatId, division);
+              }
+            }
           }
         }
       }
@@ -123,16 +133,17 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
       if (articulationKey && !isOtherInput) {
         const { ui: currentUi, chart: currentChart } = useChartStore.getState();
         const sel = currentUi.selection;
-        if (sel?.sectionId && sel.measureId && sel.beatId && sel.slotId) {
-          e.preventDefault();
+        if (sel?.sectionId && sel.measureId && sel.beatId) {
           const section = currentChart.sections.find((s) => s.id === sel.sectionId);
           const measure = section?.measures.find((m) => m.id === sel.measureId);
           const beat = measure?.beats.find((b) => b.id === sel.beatId);
-          const slot = beat?.slots.find((s) => s.id === sel.slotId);
-          if (slot) {
+          // Use selected slot if available, otherwise fall back to beat's first slot
+          const slot = beat?.slots.find((s) => s.id === sel.slotId) ?? beat?.slots[0];
+          if (beat && slot) {
+            e.preventDefault();
             const newArtic = toggleArticulation(slot.slash.articulation, articulationKey);
-            const isQuarter = beat?.division === "quarter";
-            updateSlot(sel.sectionId, sel.measureId, sel.beatId, sel.slotId, {
+            const isQuarter = beat.division === "quarter";
+            updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
               slash: {
                 ...slot.slash,
                 articulation: newArtic,
@@ -143,15 +154,52 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
         }
       }
 
-      // Shift+B — toggle stem on selected quarter beat
-      if (e.key === "B" && !isChordInput && !isOtherInput) {
+      // 0 — toggle rest on selected slot (same chord-input guard as division keys)
+      if (e.key === "0") {
+        const shouldAct = isChordInput
+          ? !/[a-zA-Z]/.test((target as HTMLInputElement).value ?? "")
+          : !isOtherInput;
+        if (shouldAct) {
+          const { ui: currentUi, chart: currentChart } = useChartStore.getState();
+          const sel = currentUi.selection;
+          if (sel?.sectionId && sel.measureId && sel.beatId) {
+            const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+            const measure = section?.measures.find((m) => m.id === sel.measureId);
+            const beat = measure?.beats.find((b) => b.id === sel.beatId);
+            if (beat) {
+              e.preventDefault();
+              if (sel.slotId || beat.slots.length === 1) {
+                // Specific slot selected, or single-slot beat: toggle that slot
+                const slot = (sel.slotId ? beat.slots.find((s) => s.id === sel.slotId) : beat.slots[0]);
+                if (slot) {
+                  updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+                    slash: { ...slot.slash, rest: !slot.slash.rest },
+                  });
+                }
+              } else {
+                // Multi-slot beat with no slot selected: toggle all
+                const newRest = !beat.slots[0]?.slash.rest;
+                updateBeat(sel.sectionId, sel.measureId, sel.beatId, {
+                  slots: beat.slots.map(slot => ({
+                    ...slot,
+                    slash: { ...slot.slash, rest: newRest },
+                  })),
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // Ctrl/Cmd+B — toggle stem on selected quarter or half beat
+      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
         const { ui: currentUi, chart: currentChart } = useChartStore.getState();
         const sel = currentUi.selection;
         if (sel?.sectionId && sel.measureId && sel.beatId) {
           const section = currentChart.sections.find((s) => s.id === sel.sectionId);
           const measure = section?.measures.find((m) => m.id === sel.measureId);
           const beat = measure?.beats.find((b) => b.id === sel.beatId);
-          if (beat?.division === "quarter") {
+          if (beat?.division === "quarter" || beat?.division === "half") {
             e.preventDefault();
             const slot = beat.slots[0];
             if (slot) {
@@ -163,20 +211,50 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
         }
       }
 
-      // X — flip stem direction on selected quarter beat
-      if (e.key === "x" && !isChordInput && !isOtherInput) {
+      // ] — toggle tie on selected slot
+      if (e.key === "]" && !isOtherInput) {
         const { ui: currentUi, chart: currentChart } = useChartStore.getState();
         const sel = currentUi.selection;
         if (sel?.sectionId && sel.measureId && sel.beatId) {
           const section = currentChart.sections.find((s) => s.id === sel.sectionId);
           const measure = section?.measures.find((m) => m.id === sel.measureId);
           const beat = measure?.beats.find((b) => b.id === sel.beatId);
-          if (beat?.division === "quarter") {
+          const slot = beat?.slots.find((s) => s.id === sel.slotId) ?? beat?.slots[0];
+          if (beat && slot) {
             e.preventDefault();
-            const slot = sel.slotId ? beat.slots.find((s) => s.id === sel.slotId) : beat.slots[0];
-            if (slot) {
-              updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
-                slash: { ...slot.slash, stemDirection: slot.slash.stemDirection === "up" ? "down" : "up" },
+            updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+              slash: { ...slot.slash, tied: !slot.slash.tied },
+            });
+          }
+        }
+      }
+
+      // Ctrl/Cmd+X — flip stem direction on selected beat (all divisions)
+      if ((e.ctrlKey || e.metaKey) && e.key === "x") {
+        const { ui: currentUi, chart: currentChart } = useChartStore.getState();
+        const sel = currentUi.selection;
+        if (sel?.sectionId && sel.measureId && sel.beatId) {
+          const section = currentChart.sections.find((s) => s.id === sel.sectionId);
+          const measure = section?.measures.find((m) => m.id === sel.measureId);
+          const beat = measure?.beats.find((b) => b.id === sel.beatId);
+          if (beat && beat.division !== "whole") {
+            e.preventDefault();
+            if (beat.division === "quarter" || beat.division === "half") {
+              // Single-slot: flip the selected (or first) slot
+              const slot = sel.slotId ? beat.slots.find((s) => s.id === sel.slotId) : beat.slots[0];
+              if (slot) {
+                updateSlot(sel.sectionId, sel.measureId, sel.beatId, slot.id, {
+                  slash: { ...slot.slash, stemDirection: slot.slash.stemDirection === "up" ? "down" : "up" },
+                });
+              }
+            } else {
+              // Multi-slot (beamed, quarterTriplet): flip all slots in one history entry
+              const newDir = (beat.slots[0]?.slash.stemDirection ?? "down") === "up" ? "down" : "up";
+              updateBeat(sel.sectionId, sel.measureId, sel.beatId, {
+                slots: beat.slots.map(slot => ({
+                  ...slot,
+                  slash: { ...slot.slash, stemDirection: newDir },
+                })),
               });
             }
           }
@@ -185,7 +263,7 @@ export function ChordChartEditor({ className, initialChart }: ChordChartEditorPr
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [undo, redo, setSelection, setBeatDivision, updateSlot]);
+  }, [undo, redo, setSelection, setBeatDivision, updateSlot, updateBeat]);
 
   return (
     <div

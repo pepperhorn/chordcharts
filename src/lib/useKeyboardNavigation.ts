@@ -41,13 +41,30 @@ export function useKeyboardNavigation() {
     const measure = measureIndex >= 0 ? section.measures[measureIndex] : null;
     const beat = beatIndex >= 0 && measure ? measure.beats[beatIndex] : null;
 
+    // Skip beats that are consumed/disabled by special divisions:
+    // - quarterTriplet consumes the next beat
+    // - whole consumes all beats after beat 0
+    const isConsumedBeat = (m: typeof measure, idx: number) => {
+      if (!m || idx <= 0) return false;
+      if (m.beats[0]?.division === "whole" && idx > 0) return true;
+      if (m.beats[idx - 1]?.division === "quarterTriplet") return true;
+      return false;
+    };
+
     switch (e.key) {
       case "ArrowRight":
         e.preventDefault();
         if (selection.type === "slot" && beat && slotIndex < beat.slots.length - 1) {
           navigateToSlot(sectionIndex, measureIndex, beatIndex, slotIndex + 1);
         } else if (measure && beatIndex < measure.beats.length - 1) {
-          navigateToSlot(sectionIndex, measureIndex, beatIndex + 1, 0);
+          // Skip consumed beats
+          let nextBeat = beatIndex + 1;
+          while (nextBeat < measure.beats.length && isConsumedBeat(measure, nextBeat)) nextBeat++;
+          if (nextBeat < measure.beats.length) {
+            navigateToSlot(sectionIndex, measureIndex, nextBeat, 0);
+          } else if (section && measureIndex < section.measures.length - 1) {
+            navigateToSlot(sectionIndex, measureIndex + 1, 0, 0);
+          }
         } else if (section && measureIndex < section.measures.length - 1) {
           navigateToSlot(sectionIndex, measureIndex + 1, 0, 0);
         }
@@ -57,12 +74,18 @@ export function useKeyboardNavigation() {
         if (selection.type === "slot" && slotIndex > 0) {
           navigateToSlot(sectionIndex, measureIndex, beatIndex, slotIndex - 1);
         } else if (beatIndex > 0 && measure) {
-          const prevBeat = measure.beats[beatIndex - 1];
-          navigateToSlot(sectionIndex, measureIndex, beatIndex - 1, prevBeat.slots.length - 1);
+          // Skip consumed beats
+          let prevBeatIdx = beatIndex - 1;
+          while (prevBeatIdx > 0 && isConsumedBeat(measure, prevBeatIdx)) prevBeatIdx--;
+          const prevBeat = measure.beats[prevBeatIdx];
+          navigateToSlot(sectionIndex, measureIndex, prevBeatIdx, prevBeat.slots.length - 1);
         } else if (measureIndex > 0) {
           const prevMeasure = section.measures[measureIndex - 1];
-          const lastBeat = prevMeasure.beats[prevMeasure.beats.length - 1];
-          navigateToSlot(sectionIndex, measureIndex - 1, prevMeasure.beats.length - 1, lastBeat.slots.length - 1);
+          // Find last non-consumed beat
+          let lastBeatIdx = prevMeasure.beats.length - 1;
+          while (lastBeatIdx > 0 && isConsumedBeat(prevMeasure, lastBeatIdx)) lastBeatIdx--;
+          const lastBeat = prevMeasure.beats[lastBeatIdx];
+          navigateToSlot(sectionIndex, measureIndex - 1, lastBeatIdx, lastBeat.slots.length - 1);
         }
         break;
       case "ArrowUp":

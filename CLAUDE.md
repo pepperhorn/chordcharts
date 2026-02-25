@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev        # Start dev server at localhost:4321
-pnpm build      # Production build
-pnpm preview    # Serve production build
+pnpm dev --host  # Start dev server at localhost:4321 (--host flag is required)
+pnpm build       # Production build
+pnpm preview     # Serve production build
 ```
 
 No test suite exists. TypeScript checking is done via `astro check` (run by `@astrojs/check`).

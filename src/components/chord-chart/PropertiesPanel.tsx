@@ -82,13 +82,15 @@ export function PropertiesPanel() {
               <TooltipContent side="right" className="p-3">
                 <p className="text-xs font-semibold mb-2">Keyboard Shortcuts</p>
                 <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                  <kbd className="font-mono bg-muted px-1 rounded">1–5</kbd><span>Beat division</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">1–5, 7–9</kbd><span>Beat division</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">0</kbd><span>Toggle rest</span>
                   <kbd className="font-mono bg-muted px-1 rounded">.</kbd><span>Staccato (toggle)</span>
                   <kbd className="font-mono bg-muted px-1 rounded">,</kbd><span>Marcato (toggle)</span>
                   <kbd className="font-mono bg-muted px-1 rounded">;</kbd><span>Accent (toggle)</span>
                   <kbd className="font-mono bg-muted px-1 rounded">'</kbd><span>Legato (toggle)</span>
-                  <kbd className="font-mono bg-muted px-1 rounded">⇧B</kbd><span>Toggle stem</span>
-                  <kbd className="font-mono bg-muted px-1 rounded">X</kbd><span>Flip stem</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">⌘B</kbd><span>Toggle stem</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">⌘X</kbd><span>Flip stem</span>
+                  <kbd className="font-mono bg-muted px-1 rounded">]</kbd><span>Toggle tie</span>
                   <kbd className="font-mono bg-muted px-1 rounded">⌘Z</kbd><span>Undo</span>
                   <kbd className="font-mono bg-muted px-1 rounded">⌘Y</kbd><span>Redo</span>
                   <kbd className="font-mono bg-muted px-1 rounded">Esc</kbd><span>Deselect</span>
@@ -154,13 +156,15 @@ export function PropertiesPanel() {
                     <span className="text-xs font-medium text-muted-foreground">Keyboard Shortcuts</span>
                   </div>
                   <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">1–5</kbd><span>Beat division</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">1–5, 7–9</kbd><span>Beat division</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">0</kbd><span>Toggle rest</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">.</kbd><span>Staccato</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">,</kbd><span>Marcato</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">;</kbd><span>Accent</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">'</kbd><span>Legato</span>
-                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">⇧B</kbd><span>Toggle stem</span>
-                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">X</kbd><span>Flip stem</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">⌘B</kbd><span>Toggle stem</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">⌘X</kbd><span>Flip stem</span>
+                    <kbd className="font-mono bg-muted px-1 rounded text-foreground">]</kbd><span>Toggle tie</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">⌘Z / ⌘Y</kbd><span>Undo / Redo</span>
                     <kbd className="font-mono bg-muted px-1 rounded text-foreground">Esc</kbd><span>Deselect</span>
                   </div>
@@ -233,6 +237,17 @@ export function PropertiesPanel() {
                       <SelectItem value="3">3rd</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Whole Rest</Label>
+                  <Button
+                    variant={selectedMeasure.wholeRest ? "secondary" : "outline"}
+                    size="sm"
+                    className="w-full"
+                    onClick={() => updateMeasure(selection.sectionId, selectedMeasure.id, { wholeRest: !selectedMeasure.wholeRest })}
+                  >
+                    {selectedMeasure.wholeRest ? "Whole rest (on)" : "Whole rest (off)"}
+                  </Button>
                 </div>
               </div>
             )}

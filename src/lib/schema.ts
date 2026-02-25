@@ -25,7 +25,7 @@ export const SlashSchema = z.object({
   tied: z.boolean().default(false),
   rest: z.boolean().default(false),
   stem: z.boolean().default(false),
-  stemDirection: z.enum(["up", "down"]).default("up"),
+  stemDirection: z.enum(["up", "down"]).default("down"),
 });
 
 // Single beat slot schema
@@ -33,13 +33,13 @@ export const BeatSlotSchema = z.object({
   id: z.string(),
   chord: ChordSchema.nullable().default(null),
   nashvilleChord: NashvilleChordSchema.nullable().default(null),
-  slash: SlashSchema.default({ articulation: "none", tied: false, rest: false, stem: false, stemDirection: "up" }),
+  slash: SlashSchema.default({ articulation: "none", tied: false, rest: false, stem: false, stemDirection: "down" }),
 });
 
 // Beat schema (contains slots based on division)
 export const BeatSchema = z.object({
   id: z.string(),
-  division: z.enum(["quarter", "eighth", "eighthTriplet", "sixteenth", "sixteenthTriplet"]).default("quarter"),
+  division: z.enum(["quarter", "eighth", "eighthTriplet", "sixteenth", "sixteenthTriplet", "half", "whole", "quarterTriplet"]).default("quarter"),
   slots: z.array(BeatSlotSchema),
   dynamics: z.string().nullable().default(null),
   lyrics: z.string().nullable().default(null),
@@ -56,6 +56,7 @@ export const MeasureSchema = z.object({
   repeatEnd: z.boolean().default(false),
   repeatCount: z.number().default(2),
   ending: z.number().nullable().default(null),
+  wholeRest: z.boolean().default(false),
 });
 
 // Time signature schema

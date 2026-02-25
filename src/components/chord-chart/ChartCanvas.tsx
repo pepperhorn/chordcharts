@@ -4,7 +4,7 @@ import type { Section } from "@/lib/schema";
 import { MeasureComponent } from "./MeasureComponent";
 import { SectionHeader } from "./SectionHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn, measureMinWidth, isMeasureSimple } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ChartCanvasProps {
   className?: string;
@@ -54,17 +54,15 @@ function SectionMeasures({ section, effectiveN }: { section: Section; effectiveN
   return (
     <div ref={containerRef} className="chart-canvas__measures flex flex-wrap gap-1">
       {section.measures.map((measure, measureIndex) => {
-        const minWidth = isMeasureSimple(measure) ? undefined : measureMinWidth(measure);
         return (
           <div
             key={measure.id}
             data-measure-id={measure.id}
-            className="chart-canvas__measure-wrapper"
+            className="chart-canvas__measure-wrapper min-w-max"
             style={{
               flexBasis: `calc(${100 / effectiveN}% - ${(effectiveN - 1) * 4 / effectiveN}px)`,
               flexGrow: 1,
               flexShrink: 0,
-              minWidth,
             }}
           >
             <MeasureComponent

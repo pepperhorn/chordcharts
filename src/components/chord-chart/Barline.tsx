@@ -7,8 +7,8 @@ interface BarlineProps {
 }
 
 export function Barline({ type }: BarlineProps) {
-  // Height matches beat__rhythm-row (52px) for proper vertical alignment
-  const height = 52;
+  // Height=64 centered on midline y=40: with items-end in 72px area, spans y=8–72
+  const height = 64;
   const width = type === "single" ? 8 : type === "double" || type === "final" ? 16 : 24;
 
   return (

@@ -76,6 +76,11 @@
   border-width: 0;
 }
 
+.quarter-triplet-group__bracket {
+  pointer-events: none;
+  background-color: currentColor;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .chord-chart-editor *,
   .chord-chart-editor *::before,

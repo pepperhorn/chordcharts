@@ -42,6 +42,7 @@ export function createMeasure(timeSignature: TimeSignature): Measure {
     repeatEnd: false,
     repeatCount: 2,
     ending: null,
+    wholeRest: false,
   };
 }
 
