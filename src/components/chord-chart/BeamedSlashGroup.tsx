@@ -600,7 +600,7 @@ export function QuarterTripletGroup({ slots, size = "md", selectedIndex = -1, ar
   const bracketY = isUp ? -10 : 86;
   const hookH = 6;
   const textGap = 10;                            // px gap between "3" text and bracket
-  const bracketExtent = SLASH_WIDTH / 2 + 3;     // 3px past notehead edge
+  const bracketExtent = SLASH_WIDTH / 2 + 13;    // 13px past notehead edge
 
   return (
     <div
@@ -644,7 +644,7 @@ export function QuarterTripletGroup({ slots, size = "md", selectedIndex = -1, ar
       }} />
       {/* Right end hook */}
       <div className="quarter-triplet-group__bracket quarter-triplet-group__bracket--right-end absolute" style={{
-        left: `calc(${getSlotPct(2)}% + ${bracketExtent}px)`,
+        right: `calc(${100 - getSlotPct(2)}% - ${bracketExtent}px)`,
         top: isUp ? bracketY : bracketY - hookH,
         width: 2,
         height: hookH,
@@ -694,7 +694,7 @@ export function QuarterTripletGroup({ slots, size = "md", selectedIndex = -1, ar
               {/* Stem */}
               <line x1={stemX} y1={stemY1} x2={stemX} y2={stemEnd} stroke="currentColor" strokeWidth={stemWidth} strokeLinecap="round" />
               {/* Quarter slash notehead (filled) */}
-              <text x={NOTE_CENTER_X} y={SLASH_CENTER_Y} textAnchor="middle" fontFamily="Petaluma" fontSize={60} fill="currentColor">{'\uE100'}</text>
+              <text x={NOTE_CENTER_X} y={SLASH_CENTER_Y} textAnchor="middle" fontFamily="Petaluma" fontSize={62} fill="currentColor">{'\uE100'}</text>
               {/* Articulations */}
               {(() => {
                 const a = slot.articulation;
